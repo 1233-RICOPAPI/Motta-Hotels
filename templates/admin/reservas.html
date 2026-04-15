@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Gestión de reservas — Motta And Hotels Admin.">
+  <title>Reservas | Motta And Hotels Admin</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='estilos.css') }}">
+</head>
+<body>
+
+<div class="admin-topbar">
+  <div class="admin-topbar__logo">Motta And Hotels</div>
+  <div class="admin-topbar__links">
+    <a href="/admin/dashboard">📊</a>
+    <a href="/admin/habitaciones">🛏️</a>
+    <a href="/admin/reservas">📅</a>
+    <a href="/">🌐</a>
+  </div>
+</div>
+
+<div class="admin-wrap">
+  <aside class="sidebar">
+    <div class="sidebar__logo">Motta And Hotels</div>
+    <div class="sidebar__tagline">Panel Administrativo</div>
+    <nav class="sidebar__nav">
+      <a href="/admin/dashboard"><span class="icon">📊</span> Dashboard</a>
+      <a href="/admin/habitaciones"><span class="icon">🛏️</span> Habitaciones</a>
+      <a href="/admin/reservas" class="active"><span class="icon">📅</span> Reservas</a>
+      <a href="/admin/nueva_habitacion"><span class="icon">➕</span> Nueva Habitación</a>
+    </nav>
+    <div class="sidebar__footer">
+      <a href="/"><span>🌐</span> Ver sitio</a>
+      <a href="/admin/login" style="color:var(--danger);"><span>🚪</span> Cerrar sesión</a>
+    </div>
+  </aside>
+
+  <main class="admin-main">
+    <div class="admin-header">
+      <div>
+        <h1 class="admin-title">Reservas</h1>
+        <p class="admin-subtitle">Listado completo de reservas del hotel</p>
+      </div>
+      <form action="/admin/reservas" method="GET" style="display:flex;gap:10px;align-items:center;">
+        <input id="buscar-reserva" class="form-control" type="text" name="q" placeholder="Buscar cliente..." style="width:220px;" value="{{ request.args.get('q', '') if request else '' }}">
+        <button type="submit" class="btn btn-gold btn-sm">Buscar</button>
+      </form>
+    </div>
+
+    <!-- Quick stats -->
+    <div class="stats-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:30px;">
+      <div class="stat-card animate-fade-up">
+        <div class="stat-card__icon stat-card__icon--gold">📋</div>
+        <div class="stat-card__value">{{ reservas|length if reservas else 0 }}</div>
+        <div class="stat-card__label">Total Reservas</div>
+      </div>
+      <div class="stat-card animate-fade-up-d1">
+        <div class="stat-card__icon stat-card__icon--green">✅</div>
+        <div class="stat-card__value">
+          {% set confirmadas = namespace(count=0) %}
+          {% for r in reservas %}{% if r.estado == 'confirmada' %}{% set confirmadas.count = confirmadas.count + 1 %}{% endif %}{% endfor %}
+          {{ confirmadas.count }}
+        </div>
+        <div class="stat-card__label">Confirmadas</div>
+      </div>
+      <div class="stat-card animate-fade-up-d2">
+        <div class="stat-card__icon stat-card__icon--blue">⏳</div>
+        <div class="stat-card__value">
+          {% set pendientes = namespace(count=0) %}
+          {% for r in reservas %}{% if r.estado == 'pendiente' %}{% set pendientes.count = pendientes.count + 1 %}{% endif %}{% endfor %}
+          {{ pendientes.count }}
+        </div>
+        <div class="stat-card__label">Pendientes</div>
+      </div>
+      <div class="stat-card animate-fade-up-d3">
+        <div class="stat-card__icon stat-card__icon--red">❌</div>
+        <div class="stat-card__value">
+          {% set canceladas = namespace(count=0) %}
+          {% for r in reservas %}{% if r.estado == 'cancelada' %}{% set canceladas.count = canceladas.count + 1 %}{% endif %}{% endfor %}
+          {{ canceladas.count }}
+        </div>
+        <div class="stat-card__label">Canceladas</div>
+      </div>
+    </div>
+
+    <div class="admin-card">
+      <div class="admin-card__header">
+        <h2 class="admin-card__title">Todas las Reservas</h2>
+        <span style="font-size:0.82rem;color:var(--text-muted);">Total: {{ reservas|length if reservas else 0 }}</span>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>ID</th><th>Cliente</th><th>Habitación</th><th>Entrada</th><th>Salida</th><th>Huéspedes</th><th>Estado</th><th>Acciones</th></tr>
+          </thead>
+          <tbody>
+            {% if reservas %}
+              {% for r in reservas %}
+              <tr>
+                <td>#{{ r.id }}</td>
+                <td><strong style="color:var(--text);">{{ r.nombre_cliente }}</strong></td>
+                <td>{{ r.habitacion_id }}</td>
+                <td>{{ r.fecha_entrada }}</td>
+                <td>{{ r.fecha_salida }}</td>
+                <td>{{ r.numero_huespedes }}</td>
+                <td>
+                  {% if r.estado == 'confirmada' %}<span class="badge badge--green">Confirmada</span>
+                  {% elif r.estado == 'pendiente' %}<span class="badge badge--yellow">Pendiente</span>
+                  {% elif r.estado == 'cancelada' %}<span class="badge badge--red">Cancelada</span>
+                  {% else %}<span class="badge badge--blue">{{ r.estado }}</span>
+                  {% endif %}
+                </td>
+                <td>
+                  <a href="/admin/editar_reserva/{{ r.id }}" class="table-action">Editar</a>
+                  <a href="#" class="table-action table-action--danger">Cancelar</a>
+                </td>
+              </tr>
+              {% endfor %}
+            {% else %}
+              <tr>
+                <td colspan="8" style="text-align:center; padding:30px;">
+                  <strong style="font-size:1.1rem; color:var(--text-muted);">No hay reservas aún en el sistema.</strong><br>
+                  <span style="font-size:0.9rem; color:var(--text-muted);">Cuando un cliente reserve desde la web, aparecerá aquí.</span>
+                </td>
+              </tr>
+            {% endif %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Agregar nueva habitación — Motta And Hotels Admin.">
+  <title>Nueva Habitación | Motta And Hotels Admin</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='estilos.css') }}">
+</head>
+<body>
+
+<div class="admin-topbar">
+  <div class="admin-topbar__logo">Motta And Hotels</div>
+  <div class="admin-topbar__links">
+    <a href="/admin/dashboard">📊</a>
+    <a href="/admin/habitaciones">🛏️</a>
+    <a href="/admin/reservas">📅</a>
+    <a href="/">🌐</a>
+  </div>
+</div>
+
+<div class="admin-wrap">
+  <aside class="sidebar">
+    <div class="sidebar__logo">Motta And Hotels</div>
+    <div class="sidebar__tagline">Panel Administrativo</div>
+    <nav class="sidebar__nav">
+      <a href="/admin/dashboard"><span class="icon">📊</span> Dashboard</a>
+      <a href="/admin/habitaciones"><span class="icon">🛏️</span> Habitaciones</a>
+      <a href="/admin/reservas"><span class="icon">📅</span> Reservas</a>
+      <a href="/admin/nueva_habitacion" class="active"><span class="icon">➕</span> Nueva Habitación</a>
+    </nav>
+    <div class="sidebar__footer">
+      <a href="/"><span>🌐</span> Ver sitio</a>
+      <a href="/admin/login" style="color:var(--danger);"><span>🚪</span> Cerrar sesión</a>
+    </div>
+  </aside>
+
+  <main class="admin-main">
+    <div class="admin-header">
+      <div>
+        <h1 class="admin-title">Nueva Habitación</h1>
+        <p class="admin-subtitle">Agregar al inventario del hotel</p>
+      </div>
+      <a href="/admin/habitaciones" class="btn btn-outline btn-sm">← Volver al listado</a>
+    </div>
+
+    <div class="admin-card" style="padding:44px; max-width:720px;">
+      <form id="form-nueva-hab" action="/admin/nueva_habitacion" method="POST">
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="nombre-hab">Nombre de la Habitación</label>
+            <input id="nombre-hab" class="form-control" type="text" name="nombre" placeholder="Ej: Suite Imperial Vista Mar" required>
+          </div>
+          <div class="form-group">
+            <label for="tipo-hab">Tipo de Habitación</label>
+            <select id="tipo-hab" class="form-control" name="tipo">
+              <option value="estandar">Estándar</option>
+              <option value="ejecutiva">Ejecutiva</option>
+              <option value="familiar">Familiar</option>
+              <option value="suite">Suite</option>
+              <option value="suite_premium">Suite Premium</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="capacidad">Capacidad (personas)</label>
+            <input id="capacidad" class="form-control" type="number" name="capacidad" min="1" max="10" placeholder="2" required>
+          </div>
+          <div class="form-group">
+            <label for="precio">Precio por Noche ($)</label>
+            <input id="precio" class="form-control" type="number" name="precio_noche" step="0.01" placeholder="0.00" required>
+          </div>
+          <div class="form-group">
+            <label for="piso">Piso</label>
+            <input id="piso" class="form-control" type="number" name="piso" min="1" max="20" placeholder="1">
+          </div>
+          <div class="form-group">
+            <label for="estado">Estado Inicial</label>
+            <select id="estado" class="form-control" name="disponible">
+              <option value="1">Disponible</option>
+              <option value="0">No disponible</option>
+            </select>
+          </div>
+          <div class="form-group form-group--full">
+            <label for="amenidades">Amenidades</label>
+            <input id="amenidades" class="form-control" type="text" name="amenidades" placeholder="WiFi, A/C, Minibar, Smart TV, Caja fuerte...">
+          </div>
+          <div class="form-group form-group--full">
+            <label for="descripcion">Descripción</label>
+            <textarea id="descripcion" class="form-control" name="descripcion" rows="4" placeholder="Describe los atributos y características especiales de la habitación..."></textarea>
+          </div>
+        </div>
+        <div class="form-actions" style="margin-top:32px;">
+          <button id="btn-guardar-hab" type="submit" class="btn btn-gold">Guardar Habitación</button>
+          <a href="/admin/habitaciones" class="btn btn-outline">Cancelar</a>
+        </div>
+      </form>
+    </div>
+  </main>
+</div>
+</body>
+</html>

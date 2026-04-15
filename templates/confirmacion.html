@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Reserva confirmada — Motta And Hotels Hotel & Spa.">
+  <title>Reserva Confirmada | Motta And Hotels</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='estilos.css') }}">
+</head>
+<body>
+
+  <nav class="navbar">
+    <div class="container navbar__inner">
+      <a href="/" class="navbar__logo">Motta And Hotels</a>
+      <ul class="navbar__links">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/disponibles">Habitaciones</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <div class="confirm-page">
+    <div class="confirm-icon">✓</div>
+    <span class="section__eyebrow animate-fade-up">Reserva Exitosa</span>
+    <h1 class="animate-fade-up-d1" style="font-size:clamp(2rem, 4vw, 2.8rem); color:var(--white); margin:18px 0;">¡Gracias por Elegirnos!</h1>
+    <p class="animate-fade-up-d2" style="color:var(--text-muted); font-size:1rem; max-width:520px; margin:0 auto 20px; line-height:1.7;">
+      Su reserva ha sido registrada exitosamente. Le esperamos con todo el placer del mundo para brindarle una experiencia inolvidable.
+    </p>
+
+    {% if entrada and salida %}
+    <div class="confirm-details animate-fade-up-d2">
+      <div class="confirm-details__row">
+        <span class="confirm-details__label">Check-in</span>
+        <span class="confirm-details__value">{{ entrada }}</span>
+      </div>
+      <div class="confirm-details__row">
+        <span class="confirm-details__label">Check-out</span>
+        <span class="confirm-details__value">{{ salida }}</span>
+      </div>
+      {% if huespedes %}
+      <div class="confirm-details__row">
+        <span class="confirm-details__label">Huéspedes</span>
+        <span class="confirm-details__value">{{ huespedes }}</span>
+      </div>
+      {% endif %}
+      <div class="confirm-details__row">
+        <span class="confirm-details__label">Estado</span>
+        <span class="badge badge--green">Confirmada</span>
+      </div>
+    </div>
+    {% endif %}
+
+    <p class="animate-fade-up-d3" style="color:var(--text-muted); font-size:0.88rem; max-width:480px; margin:10px auto 36px; line-height:1.6;">
+      Recibirá un correo electrónico con los detalles de su reserva. Si necesita asistencia, no dude en contactarnos.
+    </p>
+
+    <div style="display:flex; gap:16px; justify-content:center; flex-wrap:wrap;" class="animate-fade-up-d3">
+      <a href="/" class="btn btn-gold">Volver al Inicio</a>
+      <a href="/disponibles" class="btn btn-outline">Ver Más Habitaciones</a>
+    </div>
+  </div>
+
+  <footer class="footer--simple">
+    <p>&copy; 2026 <span>Motta And Hotels</span> Hotel & Spa. Todos los derechos reservados.</p>
+  </footer>
+
+</body>
+</html>

@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Panel de control — Motta And Hotels Hotel & Spa.">
+  <title>Dashboard | Motta And Hotels Admin</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='estilos.css') }}">
+</head>
+<body>
+
+<!-- Mobile top bar -->
+<div class="admin-topbar">
+  <div class="admin-topbar__logo">Motta And Hotels</div>
+  <div class="admin-topbar__links">
+    <a href="/admin/dashboard">📊</a>
+    <a href="/admin/habitaciones">🛏️</a>
+    <a href="/admin/reservas">📅</a>
+    <a href="/">🌐</a>
+  </div>
+</div>
+
+<div class="admin-wrap">
+  <aside class="sidebar">
+    <div class="sidebar__logo">Motta And Hotels</div>
+    <div class="sidebar__tagline">Panel Administrativo</div>
+    <nav class="sidebar__nav">
+      <a href="/admin/dashboard" class="active"><span class="icon">📊</span> Dashboard</a>
+      <a href="/admin/habitaciones"><span class="icon">🛏️</span> Habitaciones</a>
+      <a href="/admin/reservas"><span class="icon">📅</span> Reservas</a>
+      <a href="/admin/nueva_habitacion"><span class="icon">➕</span> Nueva Habitación</a>
+    </nav>
+    <div class="sidebar__footer">
+      <a href="/"><span>🌐</span> Ver sitio</a>
+      <a href="/admin/login" style="color:var(--danger);"><span>🚪</span> Cerrar sesión</a>
+    </div>
+  </aside>
+
+  <main class="admin-main">
+    <div class="admin-header">
+      <div>
+        <h1 class="admin-title">Dashboard</h1>
+        <p class="admin-subtitle">Vista general del hotel · Hoy, {{ now().strftime('%d %b %Y') if now is defined else '15 Abr 2026' }}</p>
+      </div>
+      <a href="/admin/nueva_habitacion" class="btn btn-gold btn-sm">+ Nueva Habitación</a>
+    </div>
+
+    <!-- Stats cards -->
+    <div class="stats-grid">
+      <div class="stat-card animate-fade-up">
+        <div class="stat-card__icon stat-card__icon--gold">📅</div>
+        <div class="stat-card__value">{{ stats.total_reservas }}</div>
+        <div class="stat-card__label">Total Reservas</div>
+        <div class="stat-card__change stat-card__change--up">Activas</div>
+      </div>
+      <div class="stat-card animate-fade-up-d1">
+        <div class="stat-card__icon stat-card__icon--green">🛏️</div>
+        <div class="stat-card__value">{{ stats.disponibles }}</div>
+        <div class="stat-card__label">Habitaciones Libres</div>
+        <div class="stat-card__change stat-card__change--up">Disponibles</div>
+      </div>
+      <div class="stat-card animate-fade-up-d2">
+        <div class="stat-card__icon stat-card__icon--blue">💰</div>
+        <div class="stat-card__value">{{ stats.total_habitaciones }}</div>
+        <div class="stat-card__label">Total Habitaciones</div>
+        <div class="stat-card__change stat-card__change--up">En inventario</div>
+      </div>
+      <div class="stat-card animate-fade-up-d3">
+        <div class="stat-card__icon stat-card__icon--red">✅</div>
+        <div class="stat-card__value">Ok</div>
+        <div class="stat-card__label">Estado Sistema</div>
+        <div class="stat-card__change stat-card__change--up">Conectado</div>
+      </div>
+    </div>
+
+    <!-- Quick actions -->
+    <div style="display:flex;gap:12px;margin-bottom:36px;flex-wrap:wrap;">
+      <a href="/admin/nueva_habitacion" class="btn btn-outline btn-sm">➕ Agregar Habitación</a>
+      <a href="/admin/reservas" class="btn btn-outline btn-sm">📋 Ver Reservas</a>
+      <a href="/" class="btn btn-outline btn-sm">🌐 Ver Sitio Web</a>
+    </div>
+
+    <!-- Recent activity table -->
+    <div class="admin-card">
+      <div class="admin-card__header">
+        <h2 class="admin-card__title">Actividad Reciente</h2>
+        <a href="/admin/reservas" class="btn btn-outline btn-sm">Ver todas →</a>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>ID</th><th>Cliente</th><th>Habitación</th><th>Check-in</th><th>Check-out</th><th>Estado</th><th>Acción</th></tr>
+          </thead>
+          <tbody>
+            {% if reservas %}
+              {% for r in reservas %}
+              <tr>
+                <td>#{{ r.id }}</td>
+                <td><strong style="color:var(--text);">{{ r.nombre_cliente }}</strong></td>
+                <td>{{ r.habitacion_id }}</td>
+                <td>{{ r.fecha_entrada }}</td>
+                <td>{{ r.fecha_salida }}</td>
+                <td>
+                  {% if r.estado == 'confirmada' %}<span class="badge badge--green">Confirmada</span>
+                  {% elif r.estado == 'pendiente' %}<span class="badge badge--yellow">Pendiente</span>
+                  {% else %}<span class="badge badge--blue">{{ r.estado }}</span>
+                  {% endif %}
+                </td>
+                <td><a href="/admin/editar_reserva/{{ r.id }}" class="table-action">Ver detalles</a></td>
+              </tr>
+              {% endfor %}
+            {% else %}
+              <tr><td colspan="7" style="text-align:center;">No hay actividad reciente</td></tr>
+            {% endif %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Second card: Rooms overview -->
+    <div class="admin-card">
+      <div class="admin-card__header">
+        <h2 class="admin-card__title">Estado de Habitaciones</h2>
+        <a href="/admin/habitaciones" class="btn btn-outline btn-sm">Gestionar →</a>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Habitación</th><th>Tipo</th><th>Piso</th><th>Estado</th><th>Huésped Actual</th></tr>
+          </thead>
+          <tbody>
+            {% if habitaciones %}
+              {% for h in habitaciones %}
+              <tr>
+                <td>{{ h.nombre }}</td>
+                <td>{{ h.tipo|capitalize }}</td>
+                <td>{{ h.piso }}°</td>
+                <td>
+                  {% if h.disponible == 1 %}
+                    <span class="badge badge--green">Disponible</span>
+                  {% else %}
+                    <span class="badge badge--red">Ocupada</span>
+                  {% endif %}
+                </td>
+                <td>{{ '—' if h.disponible == 1 else 'Huésped actual' }}</td>
+              </tr>
+              {% endfor %}
+            {% else %}
+              <tr><td colspan="5" style="text-align:center;">No hay habitaciones en el sistema.</td></tr>
+            {% endif %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+</div>
+</body>
+</html>

@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Motta And Hotels Hotel & Spa — Lujo y elegancia en el corazón de la ciudad. Suites premium, spa de clase mundial y gastronomía gourmet.">
+  <title>Motta And Hotels | Hotel & Spa de Lujo</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='estilos.css') }}">
+</head>
+<body>
+
+  <nav class="navbar">
+    <div class="container navbar__inner">
+      <a href="/" class="navbar__logo">Motta And Hotels</a>
+      <ul class="navbar__links">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/disponibles">Habitaciones</a></li>
+        <li><a href="#experiencias">Experiencias</a></li>
+        <li><a href="#testimonios">Testimonios</a></li>
+        <li><a href="/admin/login">Admin</a></li>
+      </ul>
+      <a href="/disponibles" class="btn btn-gold">Reservar</a>
+    </div>
+  </nav>
+
+  <!-- ===== HERO ===== -->
+  <section class="hero">
+    <div class="hero__overlay"></div>
+    <div class="container" style="position:relative;z-index:1;">
+      <div class="hero__content">
+        <span class="hero__badge">✦ Lujo 5 Estrellas</span>
+        <h1 class="hero__title">Redefiniendo<br>la <span>Elegancia</span></h1>
+        <p class="hero__sub">Experimente el lujo en su máxima expresión. Vistas impresionantes, servicio impecable y confort inigualable en cada detalle.</p>
+        <form action="/disponibles" method="GET">
+          <div class="search-bar">
+            <div class="search-bar__item">
+              <label class="search-bar__label">Entrada</label>
+              <input id="entrada" class="search-bar__input" type="date" name="entrada" required>
+            </div>
+            <div class="search-bar__item">
+              <label class="search-bar__label">Salida</label>
+              <input id="salida" class="search-bar__input" type="date" name="salida" required>
+            </div>
+            <div class="search-bar__item">
+              <label class="search-bar__label">Huéspedes</label>
+              <input id="huespedes" class="search-bar__input" type="number" name="huespedes" min="1" max="10" value="2" required>
+            </div>
+            <button class="search-bar__btn" type="submit">Buscar →</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== STATS BANNER ===== -->
+  <section class="stats-banner">
+    <div class="container stats-banner__inner">
+      <div class="stats-banner__item">
+        <div class="stats-banner__number">150+</div>
+        <div class="stats-banner__label">Habitaciones de Lujo</div>
+      </div>
+      <div class="stats-banner__item">
+        <div class="stats-banner__number">98%</div>
+        <div class="stats-banner__label">Satisfacción</div>
+      </div>
+      <div class="stats-banner__item">
+        <div class="stats-banner__number">15</div>
+        <div class="stats-banner__label">Años de Experiencia</div>
+      </div>
+      <div class="stats-banner__item">
+        <div class="stats-banner__number">24/7</div>
+        <div class="stats-banner__label">Servicio al Huésped</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== EXPERIENCIAS ===== -->
+  <section class="section" id="experiencias">
+    <div class="container">
+      <div class="section__header">
+        <span class="section__eyebrow">Lo que ofrecemos</span>
+        <h2 class="section__title">Nuestras Experiencias</h2>
+        <p class="section__subtitle">Cada momento en Motta And Hotels está diseñado para superar sus expectativas.</p>
+        <div class="section__divider"></div>
+      </div>
+      <div class="features-grid">
+        <div class="feature-card animate-fade-up">
+          <img class="feature-card__img" src="https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&q=80&w=600" alt="Suites de lujo">
+          <div class="feature-card__body">
+            <h3 class="feature-card__title">Suites de Lujo</h3>
+            <p class="feature-card__text">Diseñadas para el descanso absoluto con materiales nobles y tecnología de punta. Cada suite es un universo de confort.</p>
+            <a href="/disponibles" class="feature-card__link">Explorar habitaciones →</a>
+          </div>
+        </div>
+        <div class="feature-card animate-fade-up-d1">
+          <img class="feature-card__img" src="https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&q=80&w=600" alt="Spa y bienestar">
+          <div class="feature-card__body">
+            <h3 class="feature-card__title">Spa & Bienestar</h3>
+            <p class="feature-card__text">Un santuario de tranquilidad donde el cuerpo y la mente encuentran su equilibrio perfecto. Tratamientos exclusivos.</p>
+            <a href="#" class="feature-card__link">Descubrir más →</a>
+          </div>
+        </div>
+        <div class="feature-card animate-fade-up-d2">
+          <img class="feature-card__img" src="https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?auto=format&fit=crop&q=80&w=600" alt="Gastronomía">
+          <div class="feature-card__body">
+            <h3 class="feature-card__title">Alta Gastronomía</h3>
+            <p class="feature-card__text">Sabores locales e internacionales preparados por chefs galardonados. Una experiencia culinaria memorable.</p>
+            <a href="#" class="feature-card__link">Ver menú →</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== CTA BANNER ===== -->
+  <section class="cta-banner">
+    <div class="cta-banner__overlay"></div>
+    <div class="cta-banner__content">
+      <span class="section__eyebrow">Experiencia exclusiva</span>
+      <h2 class="cta-banner__title">Descubra el Arte de la Hospitalidad</h2>
+      <p class="cta-banner__text">Reserve ahora y obtenga un 15% de descuento en su primera estadía, incluyendo acceso completo a nuestro spa y desayuno gourmet.</p>
+      <a href="/disponibles" class="btn btn-gold btn-lg">Reservar Ahora →</a>
+    </div>
+  </section>
+
+  <!-- ===== TESTIMONIOS ===== -->
+  <section class="section" id="testimonios">
+    <div class="container">
+      <div class="section__header">
+        <span class="section__eyebrow">Reseñas de Huéspedes</span>
+        <h2 class="section__title">Lo que Dicen Nuestros Huéspedes</h2>
+        <div class="section__divider"></div>
+      </div>
+      <div class="testimonials-grid">
+        <div class="testimonial-card animate-fade-up">
+          <div class="testimonial-card__stars">★★★★★</div>
+          <p class="testimonial-card__quote">Una experiencia inolvidable. El servicio fue impecable y la habitación superó todas mis expectativas. Definitivamente volveré.</p>
+          <div class="testimonial-card__author">
+            <img class="testimonial-card__avatar" src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=100" alt="María García">
+            <div>
+              <div class="testimonial-card__name">María García</div>
+              <div class="testimonial-card__role">Viajera ejecutiva</div>
+            </div>
+          </div>
+        </div>
+        <div class="testimonial-card animate-fade-up-d1">
+          <div class="testimonial-card__stars">★★★★★</div>
+          <p class="testimonial-card__quote">El spa es simplemente increíble. Pasamos un fin de semana perfecto con mi pareja. La gastronomía es de otro nivel.</p>
+          <div class="testimonial-card__author">
+            <img class="testimonial-card__avatar" src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=100" alt="Carlos Mendoza">
+            <div>
+              <div class="testimonial-card__name">Carlos Mendoza</div>
+              <div class="testimonial-card__role">Huésped frecuente</div>
+            </div>
+          </div>
+        </div>
+        <div class="testimonial-card animate-fade-up-d2">
+          <div class="testimonial-card__stars">★★★★★</div>
+          <p class="testimonial-card__quote">Lujo en cada detalle. Desde el check-in hasta el check-out, cada momento fue perfecto. El mejor hotel que hemos visitado.</p>
+          <div class="testimonial-card__author">
+            <img class="testimonial-card__avatar" src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&q=80&w=100" alt="Ana Rodríguez">
+            <div>
+              <div class="testimonial-card__name">Ana Rodríguez</div>
+              <div class="testimonial-card__role">Bloguera de viajes</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== NEWSLETTER ===== -->
+  <section class="newsletter">
+    <div class="container">
+      <div class="newsletter__inner">
+        <div class="newsletter__text">
+          <h3>Ofertas Exclusivas</h3>
+          <p>Suscríbase y reciba las mejores ofertas y novedades directamente en su correo.</p>
+        </div>
+        <form class="newsletter__form" onsubmit="event.preventDefault(); alert('¡Gracias por suscribirse!');">
+          <input class="newsletter__input" type="email" placeholder="su@email.com" required>
+          <button type="submit" class="btn btn-gold">Suscribirse</button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== FOOTER ===== -->
+  <footer>
+    <div class="footer__inner">
+      <div class="footer__grid">
+        <div class="footer__brand">
+          <h3>Motta And Hotels</h3>
+          <p>Redefiniendo la elegancia y el lujo desde 2011. Su destino para experiencias inolvidables en el corazón de la ciudad.</p>
+        </div>
+        <div class="footer__col">
+          <h4>Explorar</h4>
+          <a href="/disponibles">Habitaciones</a>
+          <a href="#experiencias">Experiencias</a>
+          <a href="#">Spa & Bienestar</a>
+          <a href="#">Restaurante</a>
+        </div>
+        <div class="footer__col">
+          <h4>Servicios</h4>
+          <a href="#">Eventos</a>
+          <a href="#">Bodas</a>
+          <a href="#">Conferencias</a>
+          <a href="#">Transporte</a>
+        </div>
+        <div class="footer__col">
+          <h4>Contacto</h4>
+          <a href="#">📍 Av. Elegancia 1234</a>
+          <a href="#">📞 +57 1 234 5678</a>
+          <a href="#">✉️ info@grandhorizon.com</a>
+          <a href="/admin/login">🔐 Panel Admin</a>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <p>&copy; 2026 <span>Motta And Hotels</span> Hotel & Spa. Todos los derechos reservados.</p>
+        <div class="footer__social">
+          <a href="#" title="Facebook">📘</a>
+          <a href="#" title="Instagram">📸</a>
+          <a href="#" title="Twitter">🐦</a>
+          <a href="#" title="TripAdvisor">✈️</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>

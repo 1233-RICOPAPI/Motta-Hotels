@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Editar reserva — Motta And Hotels Admin.">
+  <title>Editar Reserva | Motta And Hotels Admin</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='estilos.css') }}">
+</head>
+<body>
+
+<div class="admin-topbar">
+  <div class="admin-topbar__logo">Motta And Hotels</div>
+  <div class="admin-topbar__links">
+    <a href="/admin/dashboard">📊</a>
+    <a href="/admin/habitaciones">🛏️</a>
+    <a href="/admin/reservas">📅</a>
+    <a href="/">🌐</a>
+  </div>
+</div>
+
+<div class="admin-wrap">
+  <aside class="sidebar">
+    <div class="sidebar__logo">Motta And Hotels</div>
+    <div class="sidebar__tagline">Panel Administrativo</div>
+    <nav class="sidebar__nav">
+      <a href="/admin/dashboard"><span class="icon">📊</span> Dashboard</a>
+      <a href="/admin/habitaciones"><span class="icon">🛏️</span> Habitaciones</a>
+      <a href="/admin/reservas" class="active"><span class="icon">📅</span> Reservas</a>
+      <a href="/admin/nueva_habitacion"><span class="icon">➕</span> Nueva Habitación</a>
+    </nav>
+    <div class="sidebar__footer">
+      <a href="/"><span>🌐</span> Ver sitio</a>
+      <a href="/admin/login" style="color:var(--danger);"><span>🚪</span> Cerrar sesión</a>
+    </div>
+  </aside>
+
+  <main class="admin-main">
+    <div class="admin-header">
+      <div>
+        <h1 class="admin-title">Editar Reserva</h1>
+        <p class="admin-subtitle">ID: #{{ id }} · Gestionar reserva del cliente</p>
+      </div>
+      <a href="/admin/reservas" class="btn btn-outline btn-sm">← Volver al listado</a>
+    </div>
+
+    <div class="admin-card" style="padding:44px; max-width:800px;">
+      <form id="form-editar-reserva" action="/admin/editar_reserva/{{ id }}" method="POST">
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="cliente-edit">Nombre del Cliente</label>
+            <input id="cliente-edit" class="form-control" type="text" name="nombre" value="{{ reserva.nombre if reserva else '' }}" required>
+          </div>
+          <div class="form-group">
+            <label for="hab-edit">Habitación / ID</label>
+            <input id="hab-edit" class="form-control" type="text" name="habitacion_id" value="{{ reserva.habitacion_id if reserva else '' }}" required>
+          </div>
+          <div class="form-group">
+            <label for="entrada-edit">Fecha de Entrada</label>
+            <input id="entrada-edit" class="form-control" type="date" name="fecha_entrada" value="{{ reserva.fecha_entrada if reserva else '' }}" required>
+          </div>
+          <div class="form-group">
+            <label for="salida-edit">Fecha de Salida</label>
+            <input id="salida-edit" class="form-control" type="date" name="fecha_salida" value="{{ reserva.fecha_salida if reserva else '' }}" required>
+          </div>
+          <div class="form-group">
+            <label for="huespedes-edit">Número de Huéspedes</label>
+            <input id="huespedes-edit" class="form-control" type="number" min="1" max="10" name="numero_huespedes" value="{{ reserva.numero_huespedes if reserva else 1 }}" required>
+          </div>
+          <div class="form-group">
+            <label for="estado-res">Estado de la Reserva</label>
+            <select id="estado-res" class="form-control" name="estado">
+              <option value="confirmada" {{ 'selected' if reserva and reserva.estado == 'confirmada' else '' }}>Confirmada</option>
+              <option value="pendiente"  {{ 'selected' if reserva and reserva.estado == 'pendiente'  else '' }}>Pendiente</option>
+              <option value="cancelada"  {{ 'selected' if reserva and reserva.estado == 'cancelada'  else '' }}>Cancelada</option>
+              <option value="completada" {{ 'selected' if reserva and reserva.estado == 'completada' else '' }}>Completada</option>
+            </select>
+          </div>
+          <div class="form-group form-group--full">
+            <label for="notas-admin">Notas Administrativas</label>
+            <textarea id="notas-admin" class="form-control" name="notas" rows="3" placeholder="Información interna sobre la reserva..."></textarea>
+          </div>
+        </div>
+        <div class="form-actions" style="margin-top:32px;">
+          <button id="btn-actualizar-reserva" type="submit" class="btn btn-gold">Guardar Cambios</button>
+          <a href="/admin/reservas" class="btn btn-outline">Cancelar</a>
+          <a href="#" class="btn btn-danger btn-sm" style="margin-left:auto;" onclick="return confirm('¿Está seguro de cancelar esta reserva?')">Cancelar Reserva</a>
+        </div>
+      </form>
+    </div>
+  </main>
+</div>
+</body>
+</html>

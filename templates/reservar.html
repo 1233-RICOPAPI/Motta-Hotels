@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Complete su reserva en Motta And Hotels Hotel & Spa.">
+  <title>Reservar | Motta And Hotels</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='estilos.css') }}">
+</head>
+<body class="page-form">
+
+  <nav class="navbar">
+    <div class="container navbar__inner">
+      <a href="/" class="navbar__logo">Motta And Hotels</a>
+      <ul class="navbar__links">
+        <li><a href="/disponibles">← Volver a habitaciones</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <div class="container" style="padding-top:50px;">
+
+    {% if habitacion %}
+    <div class="summary-box">
+      <div>
+        <p style="font-size:0.72rem; color:var(--gold); letter-spacing:0.12em; text-transform:uppercase; margin-bottom:6px;">Habitación seleccionada</p>
+        <h3 style="font-family:'Playfair Display',serif; color:var(--white); font-size:1.3rem;">{{ habitacion.nombre }}</h3>
+        <p style="color:var(--text-muted); font-size:0.85rem; margin-top:4px;">Capacidad: {{ habitacion.capacidad }} personas</p>
+      </div>
+      <div style="text-align:right;">
+        {% if entrada and salida %}
+        <p style="color:var(--gold); font-size:0.9rem; font-weight:500;">📅 {{ entrada }} → {{ salida }}</p>
+        {% endif %}
+        {% if habitacion.precio_noche %}
+        <p style="font-family:'Playfair Display',serif; font-size:1.5rem; color:var(--white); margin-top:4px;">${{ habitacion.precio_noche }}<small style="font-size:0.8rem; color:var(--text-muted);"> / noche</small></p>
+        {% endif %}
+      </div>
+    </div>
+    {% endif %}
+
+    <div class="form-card">
+      <h1 class="form-card__title">Datos del Huésped</h1>
+      <p class="form-card__sub">Complete la información para confirmar su reserva en Motta And Hotels.</p>
+
+      <form action="/reservar" method="POST">
+        <input type="hidden" name="habitacion_id" value="{{ habitacion.id if habitacion else '' }}">
+        <input type="hidden" name="entrada"    value="{{ entrada }}">
+        <input type="hidden" name="salida"     value="{{ salida }}">
+        <input type="hidden" name="huespedes"  value="{{ huespedes }}">
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="nombre">Nombre completo</label>
+            <input id="nombre" class="form-control" type="text" name="nombre" placeholder="Ej: Juan García López" required>
+          </div>
+          <div class="form-group">
+            <label for="cedula">Cédula / Documento</label>
+            <input id="cedula" class="form-control" type="text" name="cedula" placeholder="Ej: 12345678" required>
+          </div>
+          <div class="form-group">
+            <label for="email">Correo electrónico</label>
+            <input id="email" class="form-control" type="email" name="email" placeholder="su@email.com">
+          </div>
+          <div class="form-group">
+            <label for="telefono">Teléfono de contacto</label>
+            <input id="telefono" class="form-control" type="tel" name="telefono" placeholder="+57 300 000 0000" required>
+          </div>
+          <div class="form-group form-group--full">
+            <label for="notas">Notas o solicitudes especiales</label>
+            <textarea id="notas" class="form-control" name="notas" rows="3" placeholder="Ej: Habitación en piso alto, cama extra, check-in tardío..."></textarea>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button id="btn-confirmar" type="submit" class="btn btn-gold btn-lg" style="flex:1;">Confirmar Reserva ✓</button>
+          <a href="/disponibles" class="btn btn-outline">Cancelar</a>
+        </div>
+      </form>
+    </div>
+
+    <!-- Trust badges -->
+    <div style="display:flex; justify-content:center; gap:40px; margin-top:40px; flex-wrap:wrap;">
+      <div style="text-align:center;">
+        <div style="font-size:1.5rem; margin-bottom:6px;">🔒</div>
+        <div style="font-size:0.75rem; color:var(--text-muted);">Pago Seguro</div>
+      </div>
+      <div style="text-align:center;">
+        <div style="font-size:1.5rem; margin-bottom:6px;">🔄</div>
+        <div style="font-size:0.75rem; color:var(--text-muted);">Cancelación Gratuita</div>
+      </div>
+      <div style="text-align:center;">
+        <div style="font-size:1.5rem; margin-bottom:6px;">💎</div>
+        <div style="font-size:0.75rem; color:var(--text-muted);">Mejor Precio</div>
+      </div>
+      <div style="text-align:center;">
+        <div style="font-size:1.5rem; margin-bottom:6px;">📞</div>
+        <div style="font-size:0.75rem; color:var(--text-muted);">Soporte 24/7</div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer--simple" style="margin-top:60px;">
+    <p>&copy; 2026 <span>Motta And Hotels</span> Hotel & Spa. Todos los derechos reservados.</p>
+  </footer>
+
+</body>
+</html>
