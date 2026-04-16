@@ -50,19 +50,19 @@
     <div class="stats-grid">
       <div class="stat-card animate-fade-up">
         <div class="stat-card__icon stat-card__icon--gold">📅</div>
-        <div class="stat-card__value">{{ stats.total_reservas }}</div>
+        <div class="stat-card__value" id="val-reservas">{{ stats.total_reservas }}</div>
         <div class="stat-card__label">Total Reservas</div>
         <div class="stat-card__change stat-card__change--up">Activas</div>
       </div>
       <div class="stat-card animate-fade-up-d1">
         <div class="stat-card__icon stat-card__icon--green">🛏️</div>
-        <div class="stat-card__value">{{ stats.disponibles }}</div>
+        <div class="stat-card__value" id="val-disponibles">{{ stats.disponibles }}</div>
         <div class="stat-card__label">Habitaciones Libres</div>
         <div class="stat-card__change stat-card__change--up">Disponibles</div>
       </div>
       <div class="stat-card animate-fade-up-d2">
         <div class="stat-card__icon stat-card__icon--blue">💰</div>
-        <div class="stat-card__value">{{ stats.total_habitaciones }}</div>
+        <div class="stat-card__value" id="val-habitaciones">{{ stats.total_habitaciones }}</div>
         <div class="stat-card__label">Total Habitaciones</div>
         <div class="stat-card__change stat-card__change--up">En inventario</div>
       </div>
@@ -71,6 +71,17 @@
         <div class="stat-card__value">Ok</div>
         <div class="stat-card__label">Estado Sistema</div>
         <div class="stat-card__change stat-card__change--up">Conectado</div>
+      </div>
+    </div>
+
+    <!-- Gráficas Chart.js en Tiempo Real -->
+    <div class="admin-card animate-fade-up-d2" style="margin-bottom: 36px; text-align: center; background: #1a1a1a;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+        <h2 class="admin-card__title" style="margin:0;">Estadísticas: Precios Promedios de Habitaciones</h2>
+        <span class="badge badge--green" id="realtime-badge">En vivo 🟢</span>
+      </div>
+      <div style="position: relative; height:300px; width:100%">
+        <canvas id="habitacionesChart"></canvas>
       </div>
     </div>
 
@@ -156,5 +167,88 @@
 
   </main>
 </div>
+
+<!-- Scripts de tiempo real con Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  // Inicialización de la gráfica con los datos de Jinja para la primera carga sin flicker
+  const initialLabels = {{ nombres|tojson|safe if nombres else '[]' }};
+  const initialData = {{ precios|tojson|safe if precios else '[]' }};
+  
+  const ctx = document.getElementById('habitacionesChart').getContext('2d');
+  
+  // Customizar Chart.js global defaults para tema oscuro
+  Chart.defaults.color = '#aaaaaa';
+  Chart.defaults.font.family = "'Outfit', sans-serif";
+  
+  let myChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: initialLabels,
+      datasets: [{
+        label: 'Precio Medio (USD)',
+        data: initialData,
+        backgroundColor: '#bfa15f',
+        borderRadius: 4,
+        borderWidth: 0
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false }
+      },
+      scales: {
+        y: { 
+          beginAtZero: true, 
+          grid: { color: '#333', drawBorder: false }
+        },
+        x: {
+          grid: { display: false }
+        }
+      },
+      animation: {
+        duration: 800,
+        easing: 'easeOutQuart'
+      }
+    }
+  });
+
+  // Función de Polling (Fetch Automático) cada 5 segundos
+  function updateDashboard() {
+    fetch('/api/admin/stats')
+      .then(r => r.json())
+      .then(data => {
+        if(data.error) return;
+        
+        // Actualizar tarjetas del top
+        const valRes = document.getElementById('val-reservas');
+        const valDis = document.getElementById('val-disponibles');
+        const valHab = document.getElementById('val-habitaciones');
+        
+        // Animacion sencilla si cambia
+        if(valRes.innerText != data.stats.total_reservas) { 
+          valRes.style.color = '#fff'; setTimeout(()=> valRes.style.color='', 500); 
+        }
+        
+        valRes.innerText = data.stats.total_reservas;
+        valDis.innerText = data.stats.disponibles;
+        valHab.innerText = data.stats.total_habitaciones;
+
+        // Actualizar gráfica fluida
+        myChart.data.labels = data.chart_data.labels;
+        myChart.data.datasets[0].data = data.chart_data.values;
+        myChart.update();
+      })
+      .catch(e => console.error("Realtime error:", e));
+  }
+
+  // Ejecutar poll cada 5 segundos
+  setInterval(updateDashboard, 5000);
+});
+</script>
+
 </body>
 </html>

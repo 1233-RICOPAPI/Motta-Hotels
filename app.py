@@ -1,14 +1,14 @@
 import sqlite3
 import os
-from flask import Flask, render_template, request, redirect, url_for, flash, session
+from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify
 
 app = Flask(__name__)
 app.secret_key = 'motta_hotels_secret_v1'
 DATABASE = 'hotel.db'
 
 # Hardcoded Admin Credentials
-ADMIN_USER = 'admin'
-ADMIN_PASS = 'admin123'
+ADMIN_USER = 'aaronmotta5@gmail.com'
+ADMIN_PASS = 'motta2006'
 
 def get_db():
     conn = sqlite3.connect(DATABASE)
@@ -98,13 +98,14 @@ def reservar():
         huespedes = request.form.get('huespedes')
         notas = request.form.get('notas')
         
+        total_pago = request.form.get('total_pago', '0')
         db.execute('''
             INSERT INTO reservas (nombre_cliente, cedula, email, telefono, habitacion_id, fecha_entrada, fecha_salida, numero_huespedes, notas)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
         ''', (nombre, cedula, email, telefono, hab_id, entrada, salida, huespedes, notas))
         db.commit()
         db.close()
-        return redirect(url_for('confirmacion', entrada=entrada, salida=salida, huespedes=huespedes))
+        return redirect(url_for('confirmacion', entrada=entrada, salida=salida, huespedes=huespedes, nombre=nombre, pago=total_pago))
     
     hab_id = request.args.get('hab')
     entrada = request.args.get('entrada', '')
@@ -123,7 +124,9 @@ def confirmacion():
     entrada = request.args.get('entrada')
     salida = request.args.get('salida')
     huespedes = request.args.get('huespedes')
-    return render_template('confirmacion.html', entrada=entrada, salida=salida, huespedes=huespedes)
+    nombre = request.args.get('nombre', 'Estimado Cliente')
+    pago = request.args.get('pago', '')
+    return render_template('confirmacion.html', entrada=entrada, salida=salida, huespedes=huespedes, nombre=nombre, pago=pago)
 
 # --- Admin Routes ---
 
@@ -149,8 +152,39 @@ def admin_dashboard():
         'total_habitaciones': db.execute('SELECT COUNT(*) FROM habitaciones').fetchone()[0],
         'disponibles': db.execute('SELECT COUNT(*) FROM habitaciones WHERE disponible = 1').fetchone()[0]
     }
+    
+    # Generar datos limpios para la carga inicial o si falla JS
+    habs = db.execute('SELECT nombre, precio_noche FROM habitaciones').fetchall()
+    nombres = [h['nombre'][:15] + '...' if len(h['nombre']) > 15 else h['nombre'] for h in habs]
+    precios = [h['precio_noche'] for h in habs]
+    
     db.close()
-    return render_template('admin/dashboard.html', reservas=reservas, habitaciones=habitaciones, stats=stats)
+    return render_template('admin/dashboard.html', reservas=reservas, habitaciones=habitaciones, stats=stats, nombres=nombres, precios=precios)
+
+@app.route('/api/admin/stats')
+def api_admin_stats():
+    if not session.get('admin_logged_in'): 
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    db = get_db()
+    stats = {
+        'total_reservas': db.execute('SELECT COUNT(*) FROM reservas').fetchone()[0],
+        'total_habitaciones': db.execute('SELECT COUNT(*) FROM habitaciones').fetchone()[0],
+        'disponibles': db.execute('SELECT COUNT(*) FROM habitaciones WHERE disponible = 1').fetchone()[0]
+    }
+    
+    habs = db.execute('SELECT nombre, precio_noche FROM habitaciones').fetchall()
+    nombres = [h['nombre'][:15] + '...' if len(h['nombre']) > 15 else h['nombre'] for h in habs]
+    precios = [h['precio_noche'] for h in habs]
+    db.close()
+    
+    return jsonify({
+        'stats': stats,
+        'chart_data': {
+            'labels': nombres,
+            'values': precios
+        }
+    })
 
 @app.route('/admin/habitaciones')
 def admin_habitaciones():

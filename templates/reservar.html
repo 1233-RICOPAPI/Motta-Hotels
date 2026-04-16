@@ -48,6 +48,7 @@
         <input type="hidden" name="entrada"    value="{{ entrada }}">
         <input type="hidden" name="salida"     value="{{ salida }}">
         <input type="hidden" name="huespedes"  value="{{ huespedes }}">
+        <input type="hidden" name="total_pago" id="total_pago" value="0">
 
         <div class="form-grid">
           <div class="form-group">
@@ -73,10 +74,28 @@
         </div>
 
         <div class="form-actions">
-          <button id="btn-confirmar" type="submit" class="btn btn-gold btn-lg" style="flex:1;">Confirmar Reserva ✓</button>
+          <button id="btn-pre-confirmar" type="button" class="btn btn-gold btn-lg" style="flex:1;">Ir al Pago ✓ (Calculando...)</button>
           <a href="/disponibles" class="btn btn-outline">Cancelar</a>
         </div>
       </form>
+    </div>
+
+    <!-- Modal de Simulador de Pago -->
+    <div id="payment-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:9999; justify-content:center; align-items:center;">
+      <div style="background:var(--bg-card); padding:40px; border-radius:12px; max-width:400px; width:90%; text-align:center; border:1px solid var(--gold);">
+        <h2 style="color:var(--gold); margin-bottom:15px; font-family:'Playfair Display', serif;">Simulador de Pago Seguro</h2>
+        <p style="color:var(--text); margin-bottom:20px;">Total a debitar: <strong id="modal-total-display" style="font-size:1.5rem;">$0.00</strong></p>
+        
+        <div id="payment-loading" style="display:none; margin: 20px 0;">
+          <div style="width: 40px; height: 40px; border: 4px solid var(--text-muted); border-top-color: var(--gold); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto;"></div>
+          <p style="margin-top: 15px; color:var(--text-muted);">Procesando su tarjeta simulada...</p>
+        </div>
+
+        <div id="payment-actions">
+          <button id="btn-simulate-pay" type="button" class="btn btn-gold" style="width:100%; margin-bottom:10px;">💳 Pagar y Confirmar Reserva</button>
+          <button id="btn-cancel-pay" type="button" class="btn btn-outline" style="width:100%;">Cancelar</button>
+        </div>
+      </div>
     </div>
 
     <!-- Trust badges -->
@@ -104,5 +123,68 @@
     <p>&copy; 2026 <span>Motta And Hotels</span> Hotel & Spa. Todos los derechos reservados.</p>
   </footer>
 
+  </footer>
+
+  <style>
+    @keyframes spin { 100% { transform: rotate(360deg); } }
+  </style>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const precioNoche = {{ habitacion.precio_noche if habitacion else 0 }};
+      const entrada = "{{ entrada }}";
+      const salida = "{{ salida }}";
+      let total = 0;
+
+      const btnPreConfirmar = document.getElementById("btn-pre-confirmar");
+      
+      // Calcular días
+      if (entrada && salida && precioNoche > 0) {
+        const d1 = new Date(entrada);
+        const d2 = new Date(salida);
+        const diffTime = Math.abs(d2 - d1);
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+        const noches = diffDays > 0 ? diffDays : 1;
+        total = noches * precioNoche;
+        btnPreConfirmar.textContent = `Ir al Pago ✓ (Total: $${total.toFixed(2)})`;
+      } else {
+        total = precioNoche || 0;
+        btnPreConfirmar.textContent = `Ir al Pago ✓`;
+      }
+
+      document.getElementById("total_pago").value = total;
+      document.getElementById("modal-total-display").textContent = `$${total.toFixed(2)}`;
+
+      const form = document.querySelector("form");
+      const modal = document.getElementById("payment-modal");
+      const paymentLoading = document.getElementById("payment-loading");
+      const paymentActions = document.getElementById("payment-actions");
+      const btnSimulatePay = document.getElementById("btn-simulate-pay");
+      const btnCancelPay = document.getElementById("btn-cancel-pay");
+
+      btnPreConfirmar.addEventListener("click", () => {
+        // Validar el form básico antes de abrir el simulador
+        if (!form.checkValidity()) {
+          form.reportValidity();
+          return;
+        }
+        modal.style.display = "flex";
+      });
+
+      btnCancelPay.addEventListener("click", () => {
+        modal.style.display = "none";
+      });
+
+      btnSimulatePay.addEventListener("click", () => {
+        paymentActions.style.display = "none";
+        paymentLoading.style.display = "block";
+        
+        // Simular 2 segundos de proceso
+        setTimeout(() => {
+          form.submit();
+        }, 2000);
+      });
+
+    });
+  </script>
 </body>
 </html>
