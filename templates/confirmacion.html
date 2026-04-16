@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Reserva confirmada — Motta And Hotels Hotel & Spa.">
+  <meta name="description" content="Reserva confirmada en Motta And Hotels.">
   <title>Reserva Confirmada | Motta And Hotels</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='estilos.css') }}">
@@ -20,26 +20,26 @@
     </div>
   </nav>
 
-    <div class="confirm-page">
-    <div class="confirm-icon">✓</div>
-    <span class="section__eyebrow animate-fade-up">Pago Procesado y Reserva Exitosa</span>
-    
+  <div class="confirm-page">
+    <div class="confirm-icon">OK</div>
+    <span class="section__eyebrow animate-fade-up">Pago procesado y reserva exitosa</span>
+
     <h1 class="animate-fade-up-d1" style="font-size:clamp(1.8rem, 3.5vw, 2.5rem); color:var(--white); margin:18px 0;">
-      ¡Gracias por tu reserva, {{ nombre }}!
+      Gracias por tu reserva, {{ nombre }}.
     </h1>
-    
+
     <p class="animate-fade-up-d2" style="color:var(--text-muted); font-size:1rem; max-width:520px; margin:0 auto 20px; line-height:1.7;">
-      Hemose procesado tu método de pago con éxito y generado el siguiente recibo. Te esperamos para brindarte una experiencia inolvidable.
+      Procesamos el pago simulado y generamos este recibo con los datos principales de tu estancia.
     </p>
 
-    <div class="confirm-details animate-fade-up-d2" style="background:#151515; border: 1px dashed var(--gold); border-radius:10px; padding:25px; margin: 30px auto;">
+    <div class="confirm-details animate-fade-up-d2" style="background:#151515; border:1px dashed var(--gold); border-radius:10px; padding:25px; margin:30px auto;">
       <h3 style="color:var(--gold); text-align:center; font-family:'Playfair Display', serif; margin-bottom:20px; border-bottom:1px solid #333; padding-bottom:10px;">RECIBO VIRTUAL</h3>
-      
+
       <div class="confirm-details__row">
         <span class="confirm-details__label">Titular</span>
         <span class="confirm-details__value">{{ nombre }}</span>
       </div>
-      
+
       {% if entrada and salida %}
       <div class="confirm-details__row">
         <span class="confirm-details__label">Check-in</span>
@@ -50,14 +50,14 @@
         <span class="confirm-details__value">{{ salida }}</span>
       </div>
       {% endif %}
-      
+
       {% if huespedes %}
       <div class="confirm-details__row">
-        <span class="confirm-details__label">Huéspedes</span>
+        <span class="confirm-details__label">Huespedes</span>
         <span class="confirm-details__value">{{ huespedes }}</span>
       </div>
       {% endif %}
-      
+
       <div class="confirm-details__row">
         <span class="confirm-details__label">Estado</span>
         <span class="badge badge--green">Confirmada / Pagada</span>
@@ -65,19 +65,19 @@
 
       {% if pago and pago != '0' and pago != '0.00' %}
       <div class="confirm-details__row" style="margin-top:15px; border-top:1px dashed #444; padding-top:15px;">
-        <span class="confirm-details__label" style="font-weight:bold; color:var(--white);">Total Pagado</span>
+        <span class="confirm-details__label" style="font-weight:bold; color:var(--white);">Total pagado</span>
         <span class="confirm-details__value" style="font-weight:bold; font-size:1.2rem; color:var(--gold);">${{ pago }}</span>
       </div>
       {% endif %}
     </div>
 
     <p class="animate-fade-up-d3" style="color:var(--text-muted); font-size:0.88rem; max-width:480px; margin:10px auto 36px; line-height:1.6;">
-      Recibirás un correo electrónico con una copia de este recibo. Si necesitas asistencia, no dudes en contactarnos.
+      Si necesitas ayuda adicional, puedes volver al inicio y comunicarte con el hotel.
     </p>
 
     <div style="display:flex; gap:16px; justify-content:center; flex-wrap:wrap;" class="animate-fade-up-d3">
-      <button onclick="window.print()" class="btn btn-gold">🖨️ Imprimir Recibo</button>
-      <a href="/" class="btn btn-outline">Volver al Inicio</a>
+      <button onclick="window.print()" class="btn btn-gold">Imprimir recibo</button>
+      <a href="/" class="btn btn-outline">Volver al inicio</a>
     </div>
   </div>
 

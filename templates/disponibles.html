@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Explore nuestras habitaciones de lujo — Motta And Hotels Hotel & Spa.">
+  <meta name="description" content="Consulta habitaciones disponibles en Motta And Hotels.">
   <title>Habitaciones Disponibles | Motta And Hotels</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='estilos.css') }}">
@@ -22,19 +22,18 @@
     </div>
   </nav>
 
-  <!-- ===== PAGE HEADER ===== -->
   <section class="page-hero">
     <div class="container">
       <span class="section__eyebrow animate-fade-up">Nuestro inventario</span>
       <h1 class="section__title animate-fade-up-d1" style="text-align:left; margin-top:8px;">Habitaciones Disponibles</h1>
       {% if entrada and salida %}
       <p class="animate-fade-up-d2" style="color:var(--text-muted); margin-top:14px; font-size:0.92rem;">
-        📅 Del <strong style="color:var(--gold);">{{ entrada }}</strong> al <strong style="color:var(--gold);">{{ salida }}</strong>
-        {% if huespedes %} · <strong style="color:var(--gold);">{{ huespedes }}</strong> huésped{{ 'es' if huespedes|int > 1 else '' }}{% endif %}
+        Del <strong style="color:var(--gold);">{{ entrada }}</strong> al <strong style="color:var(--gold);">{{ salida }}</strong>
+        {% if huespedes %} | <strong style="color:var(--gold);">{{ huespedes }}</strong> huesped{{ 'es' if huespedes|int > 1 else '' }}{% endif %}
       </p>
       {% else %}
       <p class="animate-fade-up-d2" style="color:var(--text-muted); margin-top:14px; font-size:0.92rem;">
-        Seleccione las fechas desde el <a href="/" style="color:var(--gold);">buscador principal</a> para verificar disponibilidad.
+        Selecciona fechas desde el <a href="/" style="color:var(--gold);">buscador principal</a> para ver disponibilidad real.
       </p>
       {% endif %}
     </div>
@@ -42,6 +41,15 @@
 
   <section class="section" style="padding-top:50px;">
     <div class="container">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for cat, msg in messages %}
+            <div class="badge badge--{{ 'red' if cat == 'error' else 'green' }}" style="display:block; padding:12px; margin-bottom:20px; text-align:center;">
+              {{ msg }}
+            </div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
 
       {% if habitaciones %}
         {% for hab in habitaciones %}
@@ -50,63 +58,28 @@
           <div class="room-card__body">
             <span class="room-card__badge">Disponible</span>
             <h2 class="room-card__title">{{ hab.nombre }}</h2>
-            <p class="room-card__desc">{{ hab.descripcion if hab.descripcion else 'Habitación confortable con todos los servicios premium incluidos.' }}</p>
+            <p class="room-card__desc">{{ hab.descripcion if hab.descripcion else 'Habitacion confortable con servicios premium incluidos.' }}</p>
             <div class="room-card__amenities">
-              <span class="room-card__amenity">🛏️ Capacidad: {{ hab.capacidad }}</span>
-              <span class="room-card__amenity">📶 WiFi 6</span>
-              <span class="room-card__amenity">❄️ A/C</span>
-              <span class="room-card__amenity">☕ Minibar</span>
+              <span class="room-card__amenity">Capacidad: {{ hab.capacidad }}</span>
+              <span class="room-card__amenity">Tipo: {{ hab.tipo|capitalize }}</span>
+              <span class="room-card__amenity">Piso: {{ hab.piso if hab.piso else '-' }}</span>
+              <span class="room-card__amenity">{{ hab.amenidades if hab.amenidades else 'Amenidades por confirmar' }}</span>
             </div>
             <div class="room-card__footer">
-              <div class="room-card__price">${{ hab.precio_noche }} <small>/ noche</small></div>
-              <a href="/reservar?hab={{ hab.id }}&entrada={{ entrada }}&salida={{ salida }}&huespedes={{ huespedes if huespedes else 1 }}" class="btn btn-gold">Reservar →</a>
+              <div class="room-card__price">${{ '%.2f'|format(hab.precio_noche) }} <small>/ noche</small></div>
+              <a href="/reservar?hab={{ hab.id }}&entrada={{ entrada }}&salida={{ salida }}&huespedes={{ huespedes if huespedes else 1 }}" class="btn btn-gold">Reservar</a>
             </div>
           </div>
         </div>
         {% endfor %}
       {% else %}
-
-        <!-- Demo rooms when no data is loaded -->
-        <div class="room-card animate-fade-up">
-          <img class="room-card__img" src="https://images.unsplash.com/photo-1631049307264-da0ec9d70304?auto=format&fit=crop&q=80&w=600" alt="Suite Imperial">
-          <div class="room-card__body">
-            <span class="room-card__badge">⭐ Recomendada</span>
-            <h2 class="room-card__title">Suite Imperial con Vistas</h2>
-            <p class="room-card__desc">80m² con terraza privada, cama king size e hidromasaje. Desayuno gourmet y acceso al Club VIP incluidos.</p>
-            <div class="room-card__amenities">
-              <span class="room-card__amenity">🛏️ King Size</span>
-              <span class="room-card__amenity">🚿 Hidromasaje</span>
-              <span class="room-card__amenity">📶 WiFi 6</span>
-              <span class="room-card__amenity">❄️ A/C</span>
-              <span class="room-card__amenity">🍳 Desayuno</span>
-            </div>
-            <div class="room-card__footer">
-              <div class="room-card__price">$450 <small>/ noche</small></div>
-              <a href="/reservar" class="btn btn-gold">Reservar →</a>
-            </div>
-          </div>
+        <div class="admin-card" style="text-align:center; padding:40px;">
+          <h2 class="admin-card__title" style="margin-bottom:10px;">No hay habitaciones disponibles</h2>
+          <p style="color:var(--text-muted); margin-bottom:20px;">
+            No encontramos habitaciones que cumplan con las fechas y la capacidad solicitada.
+          </p>
+          <a href="/" class="btn btn-outline">Volver a buscar</a>
         </div>
-
-        <div class="room-card animate-fade-up-d1">
-          <img class="room-card__img" src="https://images.unsplash.com/photo-1595576508898-0ad5c879a061?auto=format&fit=crop&q=80&w=600" alt="Habitación Ejecutiva">
-          <div class="room-card__body">
-            <span class="room-card__badge">Popular</span>
-            <h2 class="room-card__title">Habitación Ejecutiva</h2>
-            <p class="room-card__desc">Optimizada para el viajero de negocios. Escritorio ergonómico, conectividad total y vista panorámica a la ciudad.</p>
-            <div class="room-card__amenities">
-              <span class="room-card__amenity">🛏️ Queen Size</span>
-              <span class="room-card__amenity">☕ Minibar</span>
-              <span class="room-card__amenity">📶 WiFi 6</span>
-              <span class="room-card__amenity">👔 Planchado</span>
-              <span class="room-card__amenity">💼 Escritorio</span>
-            </div>
-            <div class="room-card__footer">
-              <div class="room-card__price">$220 <small>/ noche</small></div>
-              <a href="/reservar" class="btn btn-gold">Reservar →</a>
-            </div>
-          </div>
-        </div>
-
       {% endif %}
     </div>
   </section>

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Gestión de reservas — Motta And Hotels Admin.">
+  <meta name="description" content="Gestion de reservas de Motta And Hotels.">
   <title>Reservas | Motta And Hotels Admin</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='estilos.css') }}">
@@ -13,10 +13,10 @@
 <div class="admin-topbar">
   <div class="admin-topbar__logo">Motta And Hotels</div>
   <div class="admin-topbar__links">
-    <a href="/admin/dashboard">📊</a>
-    <a href="/admin/habitaciones">🛏️</a>
-    <a href="/admin/reservas">📅</a>
-    <a href="/">🌐</a>
+    <a href="/admin/dashboard">DB</a>
+    <a href="/admin/habitaciones">HB</a>
+    <a href="/admin/reservas">RS</a>
+    <a href="/">WEB</a>
   </div>
 </div>
 
@@ -25,14 +25,14 @@
     <div class="sidebar__logo">Motta And Hotels</div>
     <div class="sidebar__tagline">Panel Administrativo</div>
     <nav class="sidebar__nav">
-      <a href="/admin/dashboard"><span class="icon">📊</span> Dashboard</a>
-      <a href="/admin/habitaciones"><span class="icon">🛏️</span> Habitaciones</a>
-      <a href="/admin/reservas" class="active"><span class="icon">📅</span> Reservas</a>
-      <a href="/admin/nueva_habitacion"><span class="icon">➕</span> Nueva Habitación</a>
+      <a href="/admin/dashboard"><span class="icon">DB</span> Dashboard</a>
+      <a href="/admin/habitaciones"><span class="icon">HB</span> Habitaciones</a>
+      <a href="/admin/reservas" class="active"><span class="icon">RS</span> Reservas</a>
+      <a href="/admin/nueva_habitacion"><span class="icon">+</span> Nueva Habitacion</a>
     </nav>
     <div class="sidebar__footer">
-      <a href="/"><span>🌐</span> Ver sitio</a>
-      <a href="/admin/login" style="color:var(--danger);"><span>🚪</span> Cerrar sesión</a>
+      <a href="/"><span>WEB</span> Ver sitio</a>
+      <a href="/admin/logout" style="color:var(--danger);"><span>OUT</span> Cerrar sesion</a>
     </div>
   </aside>
 
@@ -40,67 +40,67 @@
     <div class="admin-header">
       <div>
         <h1 class="admin-title">Reservas</h1>
-        <p class="admin-subtitle">Listado completo de reservas del hotel</p>
+        <p class="admin-subtitle">Listado completo y acciones reales sobre cada reserva</p>
       </div>
-      <form action="/admin/reservas" method="GET" style="display:flex;gap:10px;align-items:center;">
-        <input id="buscar-reserva" class="form-control" type="text" name="q" placeholder="Buscar cliente..." style="width:220px;" value="{{ request.args.get('q', '') if request else '' }}">
+      <form action="/admin/reservas" method="GET" style="display:flex; gap:10px; align-items:center;">
+        <input class="form-control" type="text" name="q" placeholder="Buscar por cliente, email o cedula" style="width:280px;" value="{{ query_text }}">
         <button type="submit" class="btn btn-gold btn-sm">Buscar</button>
       </form>
     </div>
 
-    <!-- Quick stats -->
-    <div class="stats-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:30px;">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for cat, msg in messages %}
+          <div class="badge badge--{{ 'red' if cat == 'error' else 'green' }}" style="display:block; padding:12px; margin-bottom:20px; text-align:center;">
+            {{ msg }}
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <div class="stats-grid" style="grid-template-columns:repeat(4,1fr); margin-bottom:30px;">
       <div class="stat-card animate-fade-up">
-        <div class="stat-card__icon stat-card__icon--gold">📋</div>
-        <div class="stat-card__value">{{ reservas|length if reservas else 0 }}</div>
-        <div class="stat-card__label">Total Reservas</div>
+        <div class="stat-card__icon stat-card__icon--gold">TOT</div>
+        <div class="stat-card__value">{{ stats_reservas.total }}</div>
+        <div class="stat-card__label">Total</div>
       </div>
       <div class="stat-card animate-fade-up-d1">
-        <div class="stat-card__icon stat-card__icon--green">✅</div>
-        <div class="stat-card__value">
-          {% set confirmadas = namespace(count=0) %}
-          {% for r in reservas %}{% if r.estado == 'confirmada' %}{% set confirmadas.count = confirmadas.count + 1 %}{% endif %}{% endfor %}
-          {{ confirmadas.count }}
-        </div>
+        <div class="stat-card__icon stat-card__icon--green">OK</div>
+        <div class="stat-card__value">{{ stats_reservas.confirmadas }}</div>
         <div class="stat-card__label">Confirmadas</div>
       </div>
       <div class="stat-card animate-fade-up-d2">
-        <div class="stat-card__icon stat-card__icon--blue">⏳</div>
-        <div class="stat-card__value">
-          {% set pendientes = namespace(count=0) %}
-          {% for r in reservas %}{% if r.estado == 'pendiente' %}{% set pendientes.count = pendientes.count + 1 %}{% endif %}{% endfor %}
-          {{ pendientes.count }}
-        </div>
+        <div class="stat-card__icon stat-card__icon--blue">PEN</div>
+        <div class="stat-card__value">{{ stats_reservas.pendientes }}</div>
         <div class="stat-card__label">Pendientes</div>
       </div>
       <div class="stat-card animate-fade-up-d3">
-        <div class="stat-card__icon stat-card__icon--red">❌</div>
-        <div class="stat-card__value">
-          {% set canceladas = namespace(count=0) %}
-          {% for r in reservas %}{% if r.estado == 'cancelada' %}{% set canceladas.count = canceladas.count + 1 %}{% endif %}{% endfor %}
-          {{ canceladas.count }}
-        </div>
+        <div class="stat-card__icon stat-card__icon--red">CAN</div>
+        <div class="stat-card__value">{{ stats_reservas.canceladas }}</div>
         <div class="stat-card__label">Canceladas</div>
       </div>
     </div>
 
     <div class="admin-card">
       <div class="admin-card__header">
-        <h2 class="admin-card__title">Todas las Reservas</h2>
-        <span style="font-size:0.82rem;color:var(--text-muted);">Total: {{ reservas|length if reservas else 0 }}</span>
+        <h2 class="admin-card__title">Todas las reservas</h2>
+        <span style="font-size:0.82rem; color:var(--text-muted);">Total visible: {{ stats_reservas.total }}</span>
       </div>
       <div class="table-wrap">
         <table>
           <thead>
-            <tr><th>ID</th><th>Cliente</th><th>Habitación</th><th>Entrada</th><th>Salida</th><th>Huéspedes</th><th>Estado</th><th>Acciones</th></tr>
+            <tr><th>ID</th><th>Cliente</th><th>Habitacion</th><th>Entrada</th><th>Salida</th><th>Huespedes</th><th>Estado</th><th>Acciones</th></tr>
           </thead>
           <tbody>
             {% if reservas %}
               {% for r in reservas %}
               <tr>
                 <td>#{{ r.id }}</td>
-                <td><strong style="color:var(--text);">{{ r.nombre_cliente }}</strong></td>
-                <td>{{ r.habitacion_id }}</td>
+                <td>
+                  <strong style="color:var(--text);">{{ r.nombre_cliente }}</strong><br>
+                  <span style="font-size:0.8rem; color:var(--text-muted);">{{ r.email if r.email else 'Sin correo' }}</span>
+                </td>
+                <td>{{ r.habitacion_nombre if r.habitacion_nombre else 'Habitacion #' ~ r.habitacion_id }}</td>
                 <td>{{ r.fecha_entrada }}</td>
                 <td>{{ r.fecha_salida }}</td>
                 <td>{{ r.numero_huespedes }}</td>
@@ -112,16 +112,22 @@
                   {% endif %}
                 </td>
                 <td>
-                  <a href="/admin/editar_reserva/{{ r.id }}" class="table-action">Editar</a>
-                  <a href="#" class="table-action table-action--danger">Cancelar</a>
+                  <div style="display:flex; gap:10px; align-items:center;">
+                    <a href="/admin/editar_reserva/{{ r.id }}" class="table-action">Editar</a>
+                    {% if r.estado != 'cancelada' %}
+                    <form action="/admin/cancelar_reserva/{{ r.id }}" method="POST" style="display:inline;">
+                      <button type="submit" class="table-action table-action--danger" style="background:none; border:0; padding:0; cursor:pointer;" onclick="return confirm('Se cancelara la reserva seleccionada. Continuar?')">Cancelar</button>
+                    </form>
+                    {% endif %}
+                  </div>
                 </td>
               </tr>
               {% endfor %}
             {% else %}
               <tr>
                 <td colspan="8" style="text-align:center; padding:30px;">
-                  <strong style="font-size:1.1rem; color:var(--text-muted);">No hay reservas aún en el sistema.</strong><br>
-                  <span style="font-size:0.9rem; color:var(--text-muted);">Cuando un cliente reserve desde la web, aparecerá aquí.</span>
+                  <strong style="font-size:1.1rem; color:var(--text-muted);">No hay reservas para mostrar.</strong><br>
+                  <span style="font-size:0.9rem; color:var(--text-muted);">Ajusta la busqueda o crea una nueva reserva desde el sitio publico.</span>
                 </td>
               </tr>
             {% endif %}
@@ -131,5 +137,6 @@
     </div>
   </main>
 </div>
+
 </body>
 </html>

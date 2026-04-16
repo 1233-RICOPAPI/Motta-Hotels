@@ -3,21 +3,20 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Panel de control — Motta And Hotels Hotel & Spa.">
+  <meta name="description" content="Panel de control de Motta And Hotels.">
   <title>Dashboard | Motta And Hotels Admin</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='estilos.css') }}">
 </head>
 <body>
 
-<!-- Mobile top bar -->
 <div class="admin-topbar">
   <div class="admin-topbar__logo">Motta And Hotels</div>
   <div class="admin-topbar__links">
-    <a href="/admin/dashboard">📊</a>
-    <a href="/admin/habitaciones">🛏️</a>
-    <a href="/admin/reservas">📅</a>
-    <a href="/">🌐</a>
+    <a href="/admin/dashboard">DB</a>
+    <a href="/admin/habitaciones">HB</a>
+    <a href="/admin/reservas">RS</a>
+    <a href="/">WEB</a>
   </div>
 </div>
 
@@ -26,14 +25,14 @@
     <div class="sidebar__logo">Motta And Hotels</div>
     <div class="sidebar__tagline">Panel Administrativo</div>
     <nav class="sidebar__nav">
-      <a href="/admin/dashboard" class="active"><span class="icon">📊</span> Dashboard</a>
-      <a href="/admin/habitaciones"><span class="icon">🛏️</span> Habitaciones</a>
-      <a href="/admin/reservas"><span class="icon">📅</span> Reservas</a>
-      <a href="/admin/nueva_habitacion"><span class="icon">➕</span> Nueva Habitación</a>
+      <a href="/admin/dashboard" class="active"><span class="icon">DB</span> Dashboard</a>
+      <a href="/admin/habitaciones"><span class="icon">HB</span> Habitaciones</a>
+      <a href="/admin/reservas"><span class="icon">RS</span> Reservas</a>
+      <a href="/admin/nueva_habitacion"><span class="icon">+</span> Nueva Habitacion</a>
     </nav>
     <div class="sidebar__footer">
-      <a href="/"><span>🌐</span> Ver sitio</a>
-      <a href="/admin/login" style="color:var(--danger);"><span>🚪</span> Cerrar sesión</a>
+      <a href="/"><span>WEB</span> Ver sitio</a>
+      <a href="/admin/logout" style="color:var(--danger);"><span>OUT</span> Cerrar sesion</a>
     </div>
   </aside>
 
@@ -41,67 +40,73 @@
     <div class="admin-header">
       <div>
         <h1 class="admin-title">Dashboard</h1>
-        <p class="admin-subtitle">Vista general del hotel · Hoy, {{ now().strftime('%d %b %Y') if now is defined else '15 Abr 2026' }}</p>
+        <p class="admin-subtitle">Vista general del hotel | {{ now().strftime('%d/%m/%Y') }}</p>
       </div>
-      <a href="/admin/nueva_habitacion" class="btn btn-gold btn-sm">+ Nueva Habitación</a>
+      <a href="/admin/nueva_habitacion" class="btn btn-gold btn-sm">Nueva habitacion</a>
     </div>
 
-    <!-- Stats cards -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for cat, msg in messages %}
+          <div class="badge badge--{{ 'red' if cat == 'error' else 'green' }}" style="display:block; padding:12px; margin-bottom:20px; text-align:center;">
+            {{ msg }}
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
     <div class="stats-grid">
       <div class="stat-card animate-fade-up">
-        <div class="stat-card__icon stat-card__icon--gold">📅</div>
+        <div class="stat-card__icon stat-card__icon--gold">RS</div>
         <div class="stat-card__value" id="val-reservas">{{ stats.total_reservas }}</div>
         <div class="stat-card__label">Total Reservas</div>
-        <div class="stat-card__change stat-card__change--up">Activas</div>
+        <div class="stat-card__change stat-card__change--up">Registradas</div>
       </div>
       <div class="stat-card animate-fade-up-d1">
-        <div class="stat-card__icon stat-card__icon--green">🛏️</div>
+        <div class="stat-card__icon stat-card__icon--green">HB</div>
         <div class="stat-card__value" id="val-disponibles">{{ stats.disponibles }}</div>
-        <div class="stat-card__label">Habitaciones Libres</div>
-        <div class="stat-card__change stat-card__change--up">Disponibles</div>
+        <div class="stat-card__label">Disponibles</div>
+        <div class="stat-card__change stat-card__change--up">Habitaciones libres</div>
       </div>
       <div class="stat-card animate-fade-up-d2">
-        <div class="stat-card__icon stat-card__icon--blue">💰</div>
+        <div class="stat-card__icon stat-card__icon--blue">INV</div>
         <div class="stat-card__value" id="val-habitaciones">{{ stats.total_habitaciones }}</div>
-        <div class="stat-card__label">Total Habitaciones</div>
-        <div class="stat-card__change stat-card__change--up">En inventario</div>
+        <div class="stat-card__label">Inventario</div>
+        <div class="stat-card__change stat-card__change--up">Total cargado</div>
       </div>
       <div class="stat-card animate-fade-up-d3">
-        <div class="stat-card__icon stat-card__icon--red">✅</div>
-        <div class="stat-card__value">Ok</div>
-        <div class="stat-card__label">Estado Sistema</div>
-        <div class="stat-card__change stat-card__change--up">Conectado</div>
+        <div class="stat-card__icon stat-card__icon--red">OK</div>
+        <div class="stat-card__value">Activo</div>
+        <div class="stat-card__label">Estado</div>
+        <div class="stat-card__change stat-card__change--up">Sistema en linea</div>
       </div>
     </div>
 
-    <!-- Gráficas Chart.js en Tiempo Real -->
-    <div class="admin-card animate-fade-up-d2" style="margin-bottom: 36px; text-align: center; background: #1a1a1a;">
+    <div class="admin-card animate-fade-up-d2" style="margin-bottom:36px; text-align:center; background:#1a1a1a;">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-        <h2 class="admin-card__title" style="margin:0;">Estadísticas: Precios Promedios de Habitaciones</h2>
-        <span class="badge badge--green" id="realtime-badge">En vivo 🟢</span>
+        <h2 class="admin-card__title" style="margin:0;">Precios por habitacion</h2>
+        <span class="badge badge--green" id="realtime-badge">Actualizacion automatica</span>
       </div>
-      <div style="position: relative; height:300px; width:100%">
+      <div style="position:relative; height:300px; width:100%">
         <canvas id="habitacionesChart"></canvas>
       </div>
     </div>
 
-    <!-- Quick actions -->
-    <div style="display:flex;gap:12px;margin-bottom:36px;flex-wrap:wrap;">
-      <a href="/admin/nueva_habitacion" class="btn btn-outline btn-sm">➕ Agregar Habitación</a>
-      <a href="/admin/reservas" class="btn btn-outline btn-sm">📋 Ver Reservas</a>
-      <a href="/" class="btn btn-outline btn-sm">🌐 Ver Sitio Web</a>
+    <div style="display:flex; gap:12px; margin-bottom:36px; flex-wrap:wrap;">
+      <a href="/admin/nueva_habitacion" class="btn btn-outline btn-sm">Agregar habitacion</a>
+      <a href="/admin/reservas" class="btn btn-outline btn-sm">Ver reservas</a>
+      <a href="/" class="btn btn-outline btn-sm">Abrir sitio</a>
     </div>
 
-    <!-- Recent activity table -->
     <div class="admin-card">
       <div class="admin-card__header">
-        <h2 class="admin-card__title">Actividad Reciente</h2>
-        <a href="/admin/reservas" class="btn btn-outline btn-sm">Ver todas →</a>
+        <h2 class="admin-card__title">Actividad reciente</h2>
+        <a href="/admin/reservas" class="btn btn-outline btn-sm">Ver todas</a>
       </div>
       <div class="table-wrap">
         <table>
           <thead>
-            <tr><th>ID</th><th>Cliente</th><th>Habitación</th><th>Check-in</th><th>Check-out</th><th>Estado</th><th>Acción</th></tr>
+            <tr><th>ID</th><th>Cliente</th><th>Habitacion</th><th>Check-in</th><th>Check-out</th><th>Estado</th><th>Accion</th></tr>
           </thead>
           <tbody>
             {% if reservas %}
@@ -109,36 +114,36 @@
               <tr>
                 <td>#{{ r.id }}</td>
                 <td><strong style="color:var(--text);">{{ r.nombre_cliente }}</strong></td>
-                <td>{{ r.habitacion_id }}</td>
+                <td>{{ r.habitacion_nombre if r.habitacion_nombre else 'Habitacion #' ~ r.habitacion_id }}</td>
                 <td>{{ r.fecha_entrada }}</td>
                 <td>{{ r.fecha_salida }}</td>
                 <td>
                   {% if r.estado == 'confirmada' %}<span class="badge badge--green">Confirmada</span>
                   {% elif r.estado == 'pendiente' %}<span class="badge badge--yellow">Pendiente</span>
+                  {% elif r.estado == 'cancelada' %}<span class="badge badge--red">Cancelada</span>
                   {% else %}<span class="badge badge--blue">{{ r.estado }}</span>
                   {% endif %}
                 </td>
-                <td><a href="/admin/editar_reserva/{{ r.id }}" class="table-action">Ver detalles</a></td>
+                <td><a href="/admin/editar_reserva/{{ r.id }}" class="table-action">Editar</a></td>
               </tr>
               {% endfor %}
             {% else %}
-              <tr><td colspan="7" style="text-align:center;">No hay actividad reciente</td></tr>
+              <tr><td colspan="7" style="text-align:center;">No hay actividad reciente.</td></tr>
             {% endif %}
           </tbody>
         </table>
       </div>
     </div>
 
-    <!-- Second card: Rooms overview -->
     <div class="admin-card">
       <div class="admin-card__header">
-        <h2 class="admin-card__title">Estado de Habitaciones</h2>
-        <a href="/admin/habitaciones" class="btn btn-outline btn-sm">Gestionar →</a>
+        <h2 class="admin-card__title">Estado de habitaciones</h2>
+        <a href="/admin/habitaciones" class="btn btn-outline btn-sm">Gestionar</a>
       </div>
       <div class="table-wrap">
         <table>
           <thead>
-            <tr><th>Habitación</th><th>Tipo</th><th>Piso</th><th>Estado</th><th>Huésped Actual</th></tr>
+            <tr><th>Habitacion</th><th>Tipo</th><th>Piso</th><th>Estado</th><th>Resumen</th></tr>
           </thead>
           <tbody>
             {% if habitaciones %}
@@ -146,15 +151,15 @@
               <tr>
                 <td>{{ h.nombre }}</td>
                 <td>{{ h.tipo|capitalize }}</td>
-                <td>{{ h.piso }}°</td>
+                <td>{{ h.piso if h.piso else '-' }}</td>
                 <td>
                   {% if h.disponible == 1 %}
                     <span class="badge badge--green">Disponible</span>
                   {% else %}
-                    <span class="badge badge--red">Ocupada</span>
+                    <span class="badge badge--red">No disponible</span>
                   {% endif %}
                 </td>
-                <td>{{ '—' if h.disponible == 1 else 'Huésped actual' }}</td>
+                <td>{{ h.amenidades if h.amenidades else 'Sin amenidades cargadas' }}</td>
               </tr>
               {% endfor %}
             {% else %}
@@ -164,30 +169,25 @@
         </table>
       </div>
     </div>
-
   </main>
 </div>
 
-<!-- Scripts de tiempo real con Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
 document.addEventListener("DOMContentLoaded", function() {
-  // Inicialización de la gráfica con los datos de Jinja para la primera carga sin flicker
   const initialLabels = {{ nombres|tojson|safe if nombres else '[]' }};
   const initialData = {{ precios|tojson|safe if precios else '[]' }};
-  
   const ctx = document.getElementById('habitacionesChart').getContext('2d');
-  
-  // Customizar Chart.js global defaults para tema oscuro
+
   Chart.defaults.color = '#aaaaaa';
   Chart.defaults.font.family = "'Outfit', sans-serif";
-  
-  let myChart = new Chart(ctx, {
+
+  const myChart = new Chart(ctx, {
     type: 'bar',
     data: {
       labels: initialLabels,
       datasets: [{
-        label: 'Precio Medio (USD)',
+        label: 'Precio por noche',
         data: initialData,
         backgroundColor: '#bfa15f',
         borderRadius: 4,
@@ -201,8 +201,8 @@ document.addEventListener("DOMContentLoaded", function() {
         legend: { display: false }
       },
       scales: {
-        y: { 
-          beginAtZero: true, 
+        y: {
+          beginAtZero: true,
           grid: { color: '#333', drawBorder: false }
         },
         x: {
@@ -216,28 +216,16 @@ document.addEventListener("DOMContentLoaded", function() {
     }
   });
 
-  // Función de Polling (Fetch Automático) cada 5 segundos
   function updateDashboard() {
     fetch('/api/admin/stats')
       .then(r => r.json())
       .then(data => {
-        if(data.error) return;
-        
-        // Actualizar tarjetas del top
-        const valRes = document.getElementById('val-reservas');
-        const valDis = document.getElementById('val-disponibles');
-        const valHab = document.getElementById('val-habitaciones');
-        
-        // Animacion sencilla si cambia
-        if(valRes.innerText != data.stats.total_reservas) { 
-          valRes.style.color = '#fff'; setTimeout(()=> valRes.style.color='', 500); 
-        }
-        
-        valRes.innerText = data.stats.total_reservas;
-        valDis.innerText = data.stats.disponibles;
-        valHab.innerText = data.stats.total_habitaciones;
+        if (data.error) return;
 
-        // Actualizar gráfica fluida
+        document.getElementById('val-reservas').innerText = data.stats.total_reservas;
+        document.getElementById('val-disponibles').innerText = data.stats.disponibles;
+        document.getElementById('val-habitaciones').innerText = data.stats.total_habitaciones;
+
         myChart.data.labels = data.chart_data.labels;
         myChart.data.datasets[0].data = data.chart_data.values;
         myChart.update();
@@ -245,7 +233,6 @@ document.addEventListener("DOMContentLoaded", function() {
       .catch(e => console.error("Realtime error:", e));
   }
 
-  // Ejecutar poll cada 5 segundos
   setInterval(updateDashboard, 5000);
 });
 </script>

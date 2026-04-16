@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Gestión de habitaciones — Motta And Hotels Admin.">
+  <meta name="description" content="Gestion del inventario de habitaciones.">
   <title>Habitaciones | Motta And Hotels Admin</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='estilos.css') }}">
@@ -13,10 +13,10 @@
 <div class="admin-topbar">
   <div class="admin-topbar__logo">Motta And Hotels</div>
   <div class="admin-topbar__links">
-    <a href="/admin/dashboard">📊</a>
-    <a href="/admin/habitaciones">🛏️</a>
-    <a href="/admin/reservas">📅</a>
-    <a href="/">🌐</a>
+    <a href="/admin/dashboard">DB</a>
+    <a href="/admin/habitaciones">HB</a>
+    <a href="/admin/reservas">RS</a>
+    <a href="/">WEB</a>
   </div>
 </div>
 
@@ -25,14 +25,14 @@
     <div class="sidebar__logo">Motta And Hotels</div>
     <div class="sidebar__tagline">Panel Administrativo</div>
     <nav class="sidebar__nav">
-      <a href="/admin/dashboard"><span class="icon">📊</span> Dashboard</a>
-      <a href="/admin/habitaciones" class="active"><span class="icon">🛏️</span> Habitaciones</a>
-      <a href="/admin/reservas"><span class="icon">📅</span> Reservas</a>
-      <a href="/admin/nueva_habitacion"><span class="icon">➕</span> Nueva Habitación</a>
+      <a href="/admin/dashboard"><span class="icon">DB</span> Dashboard</a>
+      <a href="/admin/habitaciones" class="active"><span class="icon">HB</span> Habitaciones</a>
+      <a href="/admin/reservas"><span class="icon">RS</span> Reservas</a>
+      <a href="/admin/nueva_habitacion"><span class="icon">+</span> Nueva Habitacion</a>
     </nav>
     <div class="sidebar__footer">
-      <a href="/"><span>🌐</span> Ver sitio</a>
-      <a href="/admin/login" style="color:var(--danger);"><span>🚪</span> Cerrar sesión</a>
+      <a href="/"><span>WEB</span> Ver sitio</a>
+      <a href="/admin/logout" style="color:var(--danger);"><span>OUT</span> Cerrar sesion</a>
     </div>
   </aside>
 
@@ -40,36 +40,43 @@
     <div class="admin-header">
       <div>
         <h1 class="admin-title">Habitaciones</h1>
-        <p class="admin-subtitle">Gestión del inventario de habitaciones</p>
+        <p class="admin-subtitle">Inventario editable con validaciones y acciones reales</p>
       </div>
-      <div style="display:flex;gap:10px;">
-        <a href="/admin/nueva_habitacion" class="btn btn-gold btn-sm">+ Nueva Habitación</a>
-      </div>
+      <a href="/admin/nueva_habitacion" class="btn btn-gold btn-sm">Nueva habitacion</a>
     </div>
 
-    <!-- Quick stats -->
-    <div class="stats-grid" style="grid-template-columns:repeat(3,1fr);margin-bottom:30px;">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for cat, msg in messages %}
+          <div class="badge badge--{{ 'red' if cat == 'error' else 'green' }}" style="display:block; padding:12px; margin-bottom:20px; text-align:center;">
+            {{ msg }}
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <div class="stats-grid" style="grid-template-columns:repeat(3,1fr); margin-bottom:30px;">
       <div class="stat-card">
-        <div class="stat-card__icon stat-card__icon--green">🛏️</div>
-        <div class="stat-card__value">{{ habitaciones|length if habitaciones else 6 }}</div>
+        <div class="stat-card__icon stat-card__icon--green">TOT</div>
+        <div class="stat-card__value">{{ stats_habitaciones.total }}</div>
         <div class="stat-card__label">Total Habitaciones</div>
       </div>
       <div class="stat-card">
-        <div class="stat-card__icon stat-card__icon--blue">✅</div>
-        <div class="stat-card__value">4</div>
+        <div class="stat-card__icon stat-card__icon--blue">DIS</div>
+        <div class="stat-card__value">{{ stats_habitaciones.disponibles }}</div>
         <div class="stat-card__label">Disponibles</div>
       </div>
       <div class="stat-card">
-        <div class="stat-card__icon stat-card__icon--red">🔒</div>
-        <div class="stat-card__value">2</div>
-        <div class="stat-card__label">Ocupadas</div>
+        <div class="stat-card__icon stat-card__icon--red">BLO</div>
+        <div class="stat-card__value">{{ stats_habitaciones.ocupadas }}</div>
+        <div class="stat-card__label">No disponibles</div>
       </div>
     </div>
 
     <div class="admin-card">
       <div class="admin-card__header">
-        <h2 class="admin-card__title">Todas las Habitaciones</h2>
-        <span style="font-size:0.82rem;color:var(--text-muted);">Total: {{ habitaciones|length if habitaciones else '6' }}</span>
+        <h2 class="admin-card__title">Todas las habitaciones</h2>
+        <span style="font-size:0.82rem; color:var(--text-muted);">Total: {{ stats_habitaciones.total }}</span>
       </div>
       <div class="table-wrap">
         <table>
@@ -82,46 +89,32 @@
               <tr>
                 <td>{{ h.id }}</td>
                 <td><strong style="color:var(--white);">{{ h.nombre }}</strong></td>
-                <td>{{ h.tipo if h.tipo else '—' }}</td>
+                <td>{{ h.tipo if h.tipo else '-' }}</td>
                 <td>{{ h.capacidad }} personas</td>
-                <td style="color:var(--gold);font-weight:600;">${{ h.precio_noche }}</td>
-                <td>{% if h.disponible %}<span class="badge badge--green">Disponible</span>{% else %}<span class="badge badge--red">Ocupada</span>{% endif %}</td>
+                <td style="color:var(--gold); font-weight:600;">${{ '%.2f'|format(h.precio_noche) }}</td>
                 <td>
-                  <a href="/admin/editar_habitacion/{{ h.id }}" class="table-action">Editar</a>
-                  <a href="#" class="table-action table-action--danger">Eliminar</a>
+                  {% if h.disponible %}
+                    <span class="badge badge--green">Disponible</span>
+                  {% else %}
+                    <span class="badge badge--red">No disponible</span>
+                  {% endif %}
+                </td>
+                <td>
+                  <div style="display:flex; gap:10px; align-items:center;">
+                    <a href="/admin/editar_habitacion/{{ h.id }}" class="table-action">Editar</a>
+                    <form action="/admin/eliminar_habitacion/{{ h.id }}" method="POST" style="display:inline;">
+                      <button type="submit" class="table-action table-action--danger" style="background:none; border:0; padding:0; cursor:pointer;" onclick="return confirm('Se eliminara la habitacion seleccionada. Continuar?')">Eliminar</button>
+                    </form>
+                  </div>
                 </td>
               </tr>
               {% endfor %}
             {% else %}
               <tr>
-                <td>101</td><td><strong style="color:var(--white);">Habitación Estándar</strong></td><td>Estándar</td><td>2 personas</td><td style="color:var(--gold);font-weight:600;">$120.00</td>
-                <td><span class="badge badge--green">Disponible</span></td>
-                <td><a href="/admin/editar_habitacion/101" class="table-action">Editar</a><a href="#" class="table-action table-action--danger">Eliminar</a></td>
-              </tr>
-              <tr>
-                <td>201</td><td><strong style="color:var(--white);">Habitación Ejecutiva</strong></td><td>Ejecutiva</td><td>2 personas</td><td style="color:var(--gold);font-weight:600;">$220.00</td>
-                <td><span class="badge badge--green">Disponible</span></td>
-                <td><a href="/admin/editar_habitacion/201" class="table-action">Editar</a><a href="#" class="table-action table-action--danger">Eliminar</a></td>
-              </tr>
-              <tr>
-                <td>310</td><td><strong style="color:var(--white);">Suite Familiar Deluxe</strong></td><td>Familiar</td><td>4 personas</td><td style="color:var(--gold);font-weight:600;">$320.00</td>
-                <td><span class="badge badge--green">Disponible</span></td>
-                <td><a href="/admin/editar_habitacion/310" class="table-action">Editar</a><a href="#" class="table-action table-action--danger">Eliminar</a></td>
-              </tr>
-              <tr>
-                <td>405</td><td><strong style="color:var(--white);">Suite Imperial</strong></td><td>Suite</td><td>4 personas</td><td style="color:var(--gold);font-weight:600;">$450.00</td>
-                <td><span class="badge badge--red">Ocupada</span></td>
-                <td><a href="/admin/editar_habitacion/405" class="table-action">Editar</a><a href="#" class="table-action table-action--danger">Eliminar</a></td>
-              </tr>
-              <tr>
-                <td>502</td><td><strong style="color:var(--white);">Suite Deluxe Panorámica</strong></td><td>Suite</td><td>3 personas</td><td style="color:var(--gold);font-weight:600;">$380.00</td>
-                <td><span class="badge badge--green">Disponible</span></td>
-                <td><a href="/admin/editar_habitacion/502" class="table-action">Editar</a><a href="#" class="table-action table-action--danger">Eliminar</a></td>
-              </tr>
-              <tr>
-                <td>108</td><td><strong style="color:var(--white);">Habitación Estándar Plus</strong></td><td>Estándar</td><td>2 personas</td><td style="color:var(--gold);font-weight:600;">$150.00</td>
-                <td><span class="badge badge--red">Ocupada</span></td>
-                <td><a href="/admin/editar_habitacion/108" class="table-action">Editar</a><a href="#" class="table-action table-action--danger">Eliminar</a></td>
+                <td colspan="7" style="text-align:center; padding:30px;">
+                  <strong style="font-size:1.1rem; color:var(--text-muted);">No hay habitaciones cargadas.</strong><br>
+                  <span style="font-size:0.9rem; color:var(--text-muted);">Usa el boton de nueva habitacion para empezar.</span>
+                </td>
               </tr>
             {% endif %}
           </tbody>
@@ -130,5 +123,6 @@
     </div>
   </main>
 </div>
+
 </body>
 </html>

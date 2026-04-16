@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Editar reserva — Motta And Hotels Admin.">
+  <meta name="description" content="Editar reserva en Motta And Hotels.">
   <title>Editar Reserva | Motta And Hotels Admin</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='estilos.css') }}">
@@ -13,10 +13,10 @@
 <div class="admin-topbar">
   <div class="admin-topbar__logo">Motta And Hotels</div>
   <div class="admin-topbar__links">
-    <a href="/admin/dashboard">📊</a>
-    <a href="/admin/habitaciones">🛏️</a>
-    <a href="/admin/reservas">📅</a>
-    <a href="/">🌐</a>
+    <a href="/admin/dashboard">DB</a>
+    <a href="/admin/habitaciones">HB</a>
+    <a href="/admin/reservas">RS</a>
+    <a href="/">WEB</a>
   </div>
 </div>
 
@@ -25,14 +25,14 @@
     <div class="sidebar__logo">Motta And Hotels</div>
     <div class="sidebar__tagline">Panel Administrativo</div>
     <nav class="sidebar__nav">
-      <a href="/admin/dashboard"><span class="icon">📊</span> Dashboard</a>
-      <a href="/admin/habitaciones"><span class="icon">🛏️</span> Habitaciones</a>
-      <a href="/admin/reservas" class="active"><span class="icon">📅</span> Reservas</a>
-      <a href="/admin/nueva_habitacion"><span class="icon">➕</span> Nueva Habitación</a>
+      <a href="/admin/dashboard"><span class="icon">DB</span> Dashboard</a>
+      <a href="/admin/habitaciones"><span class="icon">HB</span> Habitaciones</a>
+      <a href="/admin/reservas" class="active"><span class="icon">RS</span> Reservas</a>
+      <a href="/admin/nueva_habitacion"><span class="icon">+</span> Nueva Habitacion</a>
     </nav>
     <div class="sidebar__footer">
-      <a href="/"><span>🌐</span> Ver sitio</a>
-      <a href="/admin/login" style="color:var(--danger);"><span>🚪</span> Cerrar sesión</a>
+      <a href="/"><span>WEB</span> Ver sitio</a>
+      <a href="/admin/logout" style="color:var(--danger);"><span>OUT</span> Cerrar sesion</a>
     </div>
   </aside>
 
@@ -40,56 +40,79 @@
     <div class="admin-header">
       <div>
         <h1 class="admin-title">Editar Reserva</h1>
-        <p class="admin-subtitle">ID: #{{ id }} · Gestionar reserva del cliente</p>
+        <p class="admin-subtitle">ID #{{ id }} | Ajusta fechas, estado y habitacion</p>
       </div>
-      <a href="/admin/reservas" class="btn btn-outline btn-sm">← Volver al listado</a>
+      <a href="/admin/reservas" class="btn btn-outline btn-sm">Volver al listado</a>
     </div>
 
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for cat, msg in messages %}
+          <div class="badge badge--{{ 'red' if cat == 'error' else 'green' }}" style="display:block; padding:12px; margin-bottom:20px; text-align:center;">
+            {{ msg }}
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
     <div class="admin-card" style="padding:44px; max-width:800px;">
-      <form id="form-editar-reserva" action="/admin/editar_reserva/{{ id }}" method="POST">
+      <form action="/admin/editar_reserva/{{ id }}" method="POST">
         <div class="form-grid">
           <div class="form-group">
-            <label for="cliente-edit">Nombre del Cliente</label>
-            <input id="cliente-edit" class="form-control" type="text" name="nombre" value="{{ reserva.nombre if reserva else '' }}" required>
+            <label for="cliente-edit">Nombre del cliente</label>
+            <input id="cliente-edit" class="form-control" type="text" name="nombre" value="{{ reserva.nombre_cliente if reserva else '' }}" required>
           </div>
           <div class="form-group">
-            <label for="hab-edit">Habitación / ID</label>
-            <input id="hab-edit" class="form-control" type="text" name="habitacion_id" value="{{ reserva.habitacion_id if reserva else '' }}" required>
+            <label for="hab-edit">Habitacion</label>
+            <select id="hab-edit" class="form-control" name="habitacion_id" required>
+              <option value="">Selecciona una habitacion</option>
+              {% for habitacion in habitaciones %}
+              <option value="{{ habitacion.id }}" {{ 'selected' if reserva and reserva.habitacion_id|string == habitacion.id|string else '' }}>
+                #{{ habitacion.id }} - {{ habitacion.nombre }} (capacidad {{ habitacion.capacidad }})
+              </option>
+              {% endfor %}
+            </select>
           </div>
           <div class="form-group">
-            <label for="entrada-edit">Fecha de Entrada</label>
+            <label for="entrada-edit">Fecha de entrada</label>
             <input id="entrada-edit" class="form-control" type="date" name="fecha_entrada" value="{{ reserva.fecha_entrada if reserva else '' }}" required>
           </div>
           <div class="form-group">
-            <label for="salida-edit">Fecha de Salida</label>
+            <label for="salida-edit">Fecha de salida</label>
             <input id="salida-edit" class="form-control" type="date" name="fecha_salida" value="{{ reserva.fecha_salida if reserva else '' }}" required>
           </div>
           <div class="form-group">
-            <label for="huespedes-edit">Número de Huéspedes</label>
+            <label for="huespedes-edit">Numero de huespedes</label>
             <input id="huespedes-edit" class="form-control" type="number" min="1" max="10" name="numero_huespedes" value="{{ reserva.numero_huespedes if reserva else 1 }}" required>
           </div>
           <div class="form-group">
-            <label for="estado-res">Estado de la Reserva</label>
+            <label for="estado-res">Estado</label>
             <select id="estado-res" class="form-control" name="estado">
               <option value="confirmada" {{ 'selected' if reserva and reserva.estado == 'confirmada' else '' }}>Confirmada</option>
-              <option value="pendiente"  {{ 'selected' if reserva and reserva.estado == 'pendiente'  else '' }}>Pendiente</option>
-              <option value="cancelada"  {{ 'selected' if reserva and reserva.estado == 'cancelada'  else '' }}>Cancelada</option>
+              <option value="pendiente" {{ 'selected' if reserva and reserva.estado == 'pendiente' else '' }}>Pendiente</option>
+              <option value="cancelada" {{ 'selected' if reserva and reserva.estado == 'cancelada' else '' }}>Cancelada</option>
               <option value="completada" {{ 'selected' if reserva and reserva.estado == 'completada' else '' }}>Completada</option>
             </select>
           </div>
           <div class="form-group form-group--full">
-            <label for="notas-admin">Notas Administrativas</label>
-            <textarea id="notas-admin" class="form-control" name="notas" rows="3" placeholder="Información interna sobre la reserva..."></textarea>
+            <label for="notas-admin">Notas administrativas</label>
+            <textarea id="notas-admin" class="form-control" name="notas" rows="3" placeholder="Observaciones internas sobre la reserva...">{{ reserva.notas if reserva and reserva.notas else '' }}</textarea>
           </div>
         </div>
         <div class="form-actions" style="margin-top:32px;">
-          <button id="btn-actualizar-reserva" type="submit" class="btn btn-gold">Guardar Cambios</button>
+          <button type="submit" class="btn btn-gold">Guardar cambios</button>
           <a href="/admin/reservas" class="btn btn-outline">Cancelar</a>
-          <a href="#" class="btn btn-danger btn-sm" style="margin-left:auto;" onclick="return confirm('¿Está seguro de cancelar esta reserva?')">Cancelar Reserva</a>
         </div>
       </form>
+
+      {% if reserva and reserva.estado != 'cancelada' %}
+      <form action="/admin/cancelar_reserva/{{ id }}" method="POST" style="margin-top:16px;">
+        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Se cancelara la reserva actual. Continuar?')">Cancelar reserva</button>
+      </form>
+      {% endif %}
     </div>
   </main>
 </div>
+
 </body>
 </html>

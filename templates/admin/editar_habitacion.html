@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Editar habitación — Motta And Hotels Admin.">
-  <title>Editar Habitación | Motta And Hotels Admin</title>
+  <meta name="description" content="Editar habitacion en Motta And Hotels.">
+  <title>Editar Habitacion | Motta And Hotels Admin</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='estilos.css') }}">
 </head>
@@ -13,10 +13,10 @@
 <div class="admin-topbar">
   <div class="admin-topbar__logo">Motta And Hotels</div>
   <div class="admin-topbar__links">
-    <a href="/admin/dashboard">📊</a>
-    <a href="/admin/habitaciones">🛏️</a>
-    <a href="/admin/reservas">📅</a>
-    <a href="/">🌐</a>
+    <a href="/admin/dashboard">DB</a>
+    <a href="/admin/habitaciones">HB</a>
+    <a href="/admin/reservas">RS</a>
+    <a href="/">WEB</a>
   </div>
 </div>
 
@@ -25,37 +25,47 @@
     <div class="sidebar__logo">Motta And Hotels</div>
     <div class="sidebar__tagline">Panel Administrativo</div>
     <nav class="sidebar__nav">
-      <a href="/admin/dashboard"><span class="icon">📊</span> Dashboard</a>
-      <a href="/admin/habitaciones" class="active"><span class="icon">🛏️</span> Habitaciones</a>
-      <a href="/admin/reservas"><span class="icon">📅</span> Reservas</a>
-      <a href="/admin/nueva_habitacion"><span class="icon">➕</span> Nueva Habitación</a>
+      <a href="/admin/dashboard"><span class="icon">DB</span> Dashboard</a>
+      <a href="/admin/habitaciones" class="active"><span class="icon">HB</span> Habitaciones</a>
+      <a href="/admin/reservas"><span class="icon">RS</span> Reservas</a>
+      <a href="/admin/nueva_habitacion"><span class="icon">+</span> Nueva Habitacion</a>
     </nav>
     <div class="sidebar__footer">
-      <a href="/"><span>🌐</span> Ver sitio</a>
-      <a href="/admin/login" style="color:var(--danger);"><span>🚪</span> Cerrar sesión</a>
+      <a href="/"><span>WEB</span> Ver sitio</a>
+      <a href="/admin/logout" style="color:var(--danger);"><span>OUT</span> Cerrar sesion</a>
     </div>
   </aside>
 
   <main class="admin-main">
     <div class="admin-header">
       <div>
-        <h1 class="admin-title">Editar Habitación</h1>
-        <p class="admin-subtitle">ID: #{{ id }} · Modificar datos de la habitación</p>
+        <h1 class="admin-title">Editar Habitacion</h1>
+        <p class="admin-subtitle">ID #{{ id }} | Actualiza datos del inventario</p>
       </div>
-      <a href="/admin/habitaciones" class="btn btn-outline btn-sm">← Volver al listado</a>
+      <a href="/admin/habitaciones" class="btn btn-outline btn-sm">Volver al listado</a>
     </div>
 
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for cat, msg in messages %}
+          <div class="badge badge--{{ 'red' if cat == 'error' else 'green' }}" style="display:block; padding:12px; margin-bottom:20px; text-align:center;">
+            {{ msg }}
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
     <div class="admin-card" style="padding:44px; max-width:720px;">
-      <form id="form-editar-hab" action="/admin/editar_habitacion/{{ id }}" method="POST">
+      <form action="/admin/editar_habitacion/{{ id }}" method="POST">
         <div class="form-grid">
           <div class="form-group">
-            <label for="nombre-edit">Nombre de la Habitación</label>
-            <input id="nombre-edit" class="form-control" type="text" name="nombre" value="{{ habitacion.nombre if habitacion else 'Suite Imperial' }}" required>
+            <label for="nombre-edit">Nombre de la habitacion</label>
+            <input id="nombre-edit" class="form-control" type="text" name="nombre" value="{{ habitacion.nombre if habitacion else '' }}" required>
           </div>
           <div class="form-group">
-            <label for="tipo-edit">Tipo de Habitación</label>
+            <label for="tipo-edit">Tipo de habitacion</label>
             <select id="tipo-edit" class="form-control" name="tipo">
-              <option value="estandar" {{ 'selected' if habitacion and habitacion.tipo == 'estandar' else '' }}>Estándar</option>
+              <option value="estandar" {{ 'selected' if habitacion and habitacion.tipo == 'estandar' else '' }}>Estandar</option>
               <option value="ejecutiva" {{ 'selected' if habitacion and habitacion.tipo == 'ejecutiva' else '' }}>Ejecutiva</option>
               <option value="familiar" {{ 'selected' if habitacion and habitacion.tipo == 'familiar' else '' }}>Familiar</option>
               <option value="suite" {{ 'selected' if habitacion and habitacion.tipo == 'suite' else '' }}>Suite</option>
@@ -63,12 +73,12 @@
             </select>
           </div>
           <div class="form-group">
-            <label for="capacidad-edit">Capacidad (personas)</label>
-            <input id="capacidad-edit" class="form-control" type="number" name="capacidad" min="1" max="10" value="{{ habitacion.capacidad if habitacion else '4' }}" required>
+            <label for="capacidad-edit">Capacidad</label>
+            <input id="capacidad-edit" class="form-control" type="number" name="capacidad" min="1" max="10" value="{{ habitacion.capacidad if habitacion else '' }}" required>
           </div>
           <div class="form-group">
-            <label for="precio-edit">Precio por Noche ($)</label>
-            <input id="precio-edit" class="form-control" type="number" step="0.01" name="precio_noche" value="{{ habitacion.precio_noche if habitacion else '450.00' }}" required>
+            <label for="precio-edit">Precio por noche</label>
+            <input id="precio-edit" class="form-control" type="number" step="0.01" name="precio_noche" value="{{ habitacion.precio_noche if habitacion else '' }}" required>
           </div>
           <div class="form-group">
             <label for="piso-edit">Piso</label>
@@ -83,21 +93,25 @@
           </div>
           <div class="form-group form-group--full">
             <label for="amenidades-edit">Amenidades</label>
-            <input id="amenidades-edit" class="form-control" type="text" name="amenidades" value="{{ habitacion.amenidades if habitacion and habitacion.amenidades else '' }}" placeholder="WiFi, A/C, Minibar, Smart TV...">
+            <input id="amenidades-edit" class="form-control" type="text" name="amenidades" value="{{ habitacion.amenidades if habitacion and habitacion.amenidades else '' }}" placeholder="WiFi, A/C, minibar, Smart TV...">
           </div>
           <div class="form-group form-group--full">
-            <label for="desc-edit">Descripción</label>
-            <textarea id="desc-edit" class="form-control" name="descripcion" rows="4">{{ habitacion.descripcion if habitacion else 'Habitación premium con todas las comodidades.' }}</textarea>
+            <label for="desc-edit">Descripcion</label>
+            <textarea id="desc-edit" class="form-control" name="descripcion" rows="4">{{ habitacion.descripcion if habitacion and habitacion.descripcion else '' }}</textarea>
           </div>
         </div>
         <div class="form-actions" style="margin-top:32px;">
-          <button id="btn-actualizar-hab" type="submit" class="btn btn-gold">Guardar Cambios</button>
+          <button type="submit" class="btn btn-gold">Guardar cambios</button>
           <a href="/admin/habitaciones" class="btn btn-outline">Cancelar</a>
-          <a href="#" class="btn btn-danger btn-sm" style="margin-left:auto;" onclick="return confirm('¿Está seguro de eliminar esta habitación?')">Eliminar Habitación</a>
         </div>
+      </form>
+
+      <form action="/admin/eliminar_habitacion/{{ id }}" method="POST" style="margin-top:16px;">
+        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Se eliminara la habitacion actual. Continuar?')">Eliminar habitacion</button>
       </form>
     </div>
   </main>
 </div>
+
 </body>
 </html>

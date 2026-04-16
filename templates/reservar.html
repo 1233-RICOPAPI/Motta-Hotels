@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Complete su reserva en Motta And Hotels Hotel & Spa.">
+  <meta name="description" content="Completa tu reserva en Motta And Hotels.">
   <title>Reservar | Motta And Hotels</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='estilos.css') }}">
@@ -14,106 +14,105 @@
     <div class="container navbar__inner">
       <a href="/" class="navbar__logo">Motta And Hotels</a>
       <ul class="navbar__links">
-        <li><a href="/disponibles">← Volver a habitaciones</a></li>
+        <li><a href="/disponibles?entrada={{ entrada }}&salida={{ salida }}&huespedes={{ huespedes }}">Volver a habitaciones</a></li>
       </ul>
     </div>
   </nav>
 
   <div class="container" style="padding-top:50px;">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for cat, msg in messages %}
+          <div class="badge badge--{{ 'red' if cat == 'error' else 'green' }}" style="display:block; padding:12px; margin-bottom:20px; text-align:center;">
+            {{ msg }}
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
 
-    {% if habitacion %}
     <div class="summary-box">
       <div>
-        <p style="font-size:0.72rem; color:var(--gold); letter-spacing:0.12em; text-transform:uppercase; margin-bottom:6px;">Habitación seleccionada</p>
+        <p style="font-size:0.72rem; color:var(--gold); letter-spacing:0.12em; text-transform:uppercase; margin-bottom:6px;">Habitacion seleccionada</p>
         <h3 style="font-family:'Playfair Display',serif; color:var(--white); font-size:1.3rem;">{{ habitacion.nombre }}</h3>
         <p style="color:var(--text-muted); font-size:0.85rem; margin-top:4px;">Capacidad: {{ habitacion.capacidad }} personas</p>
       </div>
       <div style="text-align:right;">
-        {% if entrada and salida %}
-        <p style="color:var(--gold); font-size:0.9rem; font-weight:500;">📅 {{ entrada }} → {{ salida }}</p>
-        {% endif %}
-        {% if habitacion.precio_noche %}
-        <p style="font-family:'Playfair Display',serif; font-size:1.5rem; color:var(--white); margin-top:4px;">${{ habitacion.precio_noche }}<small style="font-size:0.8rem; color:var(--text-muted);"> / noche</small></p>
-        {% endif %}
+        <p style="color:var(--gold); font-size:0.9rem; font-weight:500;">{{ entrada }} a {{ salida }}</p>
+        <p style="font-family:'Playfair Display',serif; font-size:1.5rem; color:var(--white); margin-top:4px;">
+          ${{ '%.2f'|format(habitacion.precio_noche) }}<small style="font-size:0.8rem; color:var(--text-muted);"> / noche</small>
+        </p>
       </div>
     </div>
-    {% endif %}
 
     <div class="form-card">
-      <h1 class="form-card__title">Datos del Huésped</h1>
-      <p class="form-card__sub">Complete la información para confirmar su reserva en Motta And Hotels.</p>
+      <h1 class="form-card__title">Datos del huesped</h1>
+      <p class="form-card__sub">Completa la informacion para confirmar la reserva.</p>
 
       <form action="/reservar" method="POST">
-        <input type="hidden" name="habitacion_id" value="{{ habitacion.id if habitacion else '' }}">
-        <input type="hidden" name="entrada"    value="{{ entrada }}">
-        <input type="hidden" name="salida"     value="{{ salida }}">
-        <input type="hidden" name="huespedes"  value="{{ huespedes }}">
+        <input type="hidden" name="habitacion_id" value="{{ habitacion.id }}">
+        <input type="hidden" name="entrada" value="{{ entrada }}">
+        <input type="hidden" name="salida" value="{{ salida }}">
+        <input type="hidden" name="huespedes" value="{{ huespedes }}">
         <input type="hidden" name="total_pago" id="total_pago" value="0">
 
         <div class="form-grid">
           <div class="form-group">
             <label for="nombre">Nombre completo</label>
-            <input id="nombre" class="form-control" type="text" name="nombre" placeholder="Ej: Juan García López" required>
+            <input id="nombre" class="form-control" type="text" name="nombre" placeholder="Ej: Juan Garcia Lopez" required>
           </div>
           <div class="form-group">
-            <label for="cedula">Cédula / Documento</label>
+            <label for="cedula">Cedula / Documento</label>
             <input id="cedula" class="form-control" type="text" name="cedula" placeholder="Ej: 12345678" required>
           </div>
           <div class="form-group">
-            <label for="email">Correo electrónico</label>
+            <label for="email">Correo electronico</label>
             <input id="email" class="form-control" type="email" name="email" placeholder="su@email.com">
           </div>
           <div class="form-group">
-            <label for="telefono">Teléfono de contacto</label>
+            <label for="telefono">Telefono de contacto</label>
             <input id="telefono" class="form-control" type="tel" name="telefono" placeholder="+57 300 000 0000" required>
           </div>
           <div class="form-group form-group--full">
             <label for="notas">Notas o solicitudes especiales</label>
-            <textarea id="notas" class="form-control" name="notas" rows="3" placeholder="Ej: Habitación en piso alto, cama extra, check-in tardío..."></textarea>
+            <textarea id="notas" class="form-control" name="notas" rows="3" placeholder="Ej: piso alto, cama extra, check-in tardio..."></textarea>
           </div>
         </div>
 
         <div class="form-actions">
-          <button id="btn-pre-confirmar" type="button" class="btn btn-gold btn-lg" style="flex:1;">Ir al Pago ✓ (Calculando...)</button>
-          <a href="/disponibles" class="btn btn-outline">Cancelar</a>
+          <button id="btn-pre-confirmar" type="button" class="btn btn-gold btn-lg" style="flex:1;">Ir al pago</button>
+          <a href="/disponibles?entrada={{ entrada }}&salida={{ salida }}&huespedes={{ huespedes }}" class="btn btn-outline">Cancelar</a>
         </div>
       </form>
     </div>
 
-    <!-- Modal de Simulador de Pago -->
     <div id="payment-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:9999; justify-content:center; align-items:center;">
       <div style="background:var(--bg-card); padding:40px; border-radius:12px; max-width:400px; width:90%; text-align:center; border:1px solid var(--gold);">
-        <h2 style="color:var(--gold); margin-bottom:15px; font-family:'Playfair Display', serif;">Simulador de Pago Seguro</h2>
+        <h2 style="color:var(--gold); margin-bottom:15px; font-family:'Playfair Display', serif;">Simulador de pago seguro</h2>
         <p style="color:var(--text); margin-bottom:20px;">Total a debitar: <strong id="modal-total-display" style="font-size:1.5rem;">$0.00</strong></p>
-        
-        <div id="payment-loading" style="display:none; margin: 20px 0;">
-          <div style="width: 40px; height: 40px; border: 4px solid var(--text-muted); border-top-color: var(--gold); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto;"></div>
-          <p style="margin-top: 15px; color:var(--text-muted);">Procesando su tarjeta simulada...</p>
+
+        <div id="payment-loading" style="display:none; margin:20px 0;">
+          <div style="width:40px; height:40px; border:4px solid var(--text-muted); border-top-color:var(--gold); border-radius:50%; animation:spin 1s linear infinite; margin:0 auto;"></div>
+          <p style="margin-top:15px; color:var(--text-muted);">Procesando pago simulado...</p>
         </div>
 
         <div id="payment-actions">
-          <button id="btn-simulate-pay" type="button" class="btn btn-gold" style="width:100%; margin-bottom:10px;">💳 Pagar y Confirmar Reserva</button>
+          <button id="btn-simulate-pay" type="button" class="btn btn-gold" style="width:100%; margin-bottom:10px;">Pagar y confirmar</button>
           <button id="btn-cancel-pay" type="button" class="btn btn-outline" style="width:100%;">Cancelar</button>
         </div>
       </div>
     </div>
 
-    <!-- Trust badges -->
     <div style="display:flex; justify-content:center; gap:40px; margin-top:40px; flex-wrap:wrap;">
       <div style="text-align:center;">
-        <div style="font-size:1.5rem; margin-bottom:6px;">🔒</div>
         <div style="font-size:0.75rem; color:var(--text-muted);">Pago Seguro</div>
       </div>
       <div style="text-align:center;">
-        <div style="font-size:1.5rem; margin-bottom:6px;">🔄</div>
-        <div style="font-size:0.75rem; color:var(--text-muted);">Cancelación Gratuita</div>
+        <div style="font-size:0.75rem; color:var(--text-muted);">Cancelacion Gratuita</div>
       </div>
       <div style="text-align:center;">
-        <div style="font-size:1.5rem; margin-bottom:6px;">💎</div>
         <div style="font-size:0.75rem; color:var(--text-muted);">Mejor Precio</div>
       </div>
       <div style="text-align:center;">
-        <div style="font-size:1.5rem; margin-bottom:6px;">📞</div>
         <div style="font-size:0.75rem; color:var(--text-muted);">Soporte 24/7</div>
       </div>
     </div>
@@ -123,33 +122,24 @@
     <p>&copy; 2026 <span>Motta And Hotels</span> Hotel & Spa. Todos los derechos reservados.</p>
   </footer>
 
-  </footer>
-
   <style>
     @keyframes spin { 100% { transform: rotate(360deg); } }
   </style>
   <script>
     document.addEventListener("DOMContentLoaded", () => {
-      const precioNoche = {{ habitacion.precio_noche if habitacion else 0 }};
+      const precioNoche = {{ habitacion.precio_noche }};
       const entrada = "{{ entrada }}";
       const salida = "{{ salida }}";
       let total = 0;
 
       const btnPreConfirmar = document.getElementById("btn-pre-confirmar");
-      
-      // Calcular días
-      if (entrada && salida && precioNoche > 0) {
-        const d1 = new Date(entrada);
-        const d2 = new Date(salida);
-        const diffTime = Math.abs(d2 - d1);
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
-        const noches = diffDays > 0 ? diffDays : 1;
-        total = noches * precioNoche;
-        btnPreConfirmar.textContent = `Ir al Pago ✓ (Total: $${total.toFixed(2)})`;
-      } else {
-        total = precioNoche || 0;
-        btnPreConfirmar.textContent = `Ir al Pago ✓`;
-      }
+      const d1 = new Date(entrada);
+      const d2 = new Date(salida);
+      const diffTime = Math.abs(d2 - d1);
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      const noches = diffDays > 0 ? diffDays : 1;
+      total = noches * precioNoche;
+      btnPreConfirmar.textContent = `Ir al pago (Total: $${total.toFixed(2)})`;
 
       document.getElementById("total_pago").value = total;
       document.getElementById("modal-total-display").textContent = `$${total.toFixed(2)}`;
@@ -162,7 +152,6 @@
       const btnCancelPay = document.getElementById("btn-cancel-pay");
 
       btnPreConfirmar.addEventListener("click", () => {
-        // Validar el form básico antes de abrir el simulador
         if (!form.checkValidity()) {
           form.reportValidity();
           return;
@@ -177,13 +166,11 @@
       btnSimulatePay.addEventListener("click", () => {
         paymentActions.style.display = "none";
         paymentLoading.style.display = "block";
-        
-        // Simular 2 segundos de proceso
+
         setTimeout(() => {
           form.submit();
         }, 2000);
       });
-
     });
   </script>
 </body>
